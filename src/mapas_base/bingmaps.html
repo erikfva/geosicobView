@@ -1,0 +1,16 @@
+<!--
+++++++++++++ BingMaps ++++++++++++ 
+-->
+<script type="text/javascript">
+	function onSelectBingMaps(el){
+		setBaseMap('lyr_bingmap', el, 'lyr_bingmap' + $('#bing-layer-select').val());
+	}		
+</script>
+
+<script id="tmpl-bingmaps" type="text/x-tmpl">
+<select id="bing-layer-select" onchange="onSelectBaseMap('lyr_bingmap',this);">
+	<option value="Aerial">Im&aacute;gen satelital</option>
+	<option value="AerialWithLabels" selected>Im&aacute;gen con etiquetas</option>
+	<option value="Road">Calles</option>
+</select>
+</script>

@@ -1,0 +1,110 @@
+<!-- Plantilla del geoproceso "sicob_identificar_predio" -->
+<script id="tmpl-sicob_identificar_predio" type="text/x-tmpl">
+  <form id="frm-sicob_identificar_predio" enctype="multipart/form-data" action="" method="POST">
+  	<input type="hidden" name="session_key" value="">
+  	<input type="hidden" name="opciones" value="webservice">
+  	<input type="hidden" id="x_entradatxt" name="x_entradatxt" value="">
+  	<input type="hidden" name="x_opcionestxt" value="">
+    <div class="form-template form-group">
+      <label class="text-info" for="lyr_in">Seleccione la capa de pol&iacute;gonos:</label>
+    	<select class="navbar-inverse form-control" id="lyr_in" name="lyr_in">
+    	{% include('tmpl-geosicob-layers',{}); %} <!-- aqui se usa la plantilla para mostrar el listado de capas vectoriales disponibles. -->
+    	</select>
+    </div>
+  	<input type="hidden" id="modal-result" value="">
+  	<button name="btnsubmit" class="btn btn-lg btn-primary" onclick="runGeoprocess({%=JSON.stringify(o)%});" type="button" id="btnsubmit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Ejecutando...">Ejecutar</button>
+  </form>
+</script>
+
+<script id="tmpl-sicob_identificar_predio_result" type="text/x-tmpl">
+	<p style="word-break: break-all;">
+	{% if(parseInt(o.out.total_predios || '0') > 0){ %}
+		<i class="fa fa-smile-o" aria-hidden="true"></i> Se identific&oacute; <strong>{%=o.out.total_predios%}</strong> predio(s).
+		<h4 class="text-success">Predios:</h4>
+		<div class="table-responsive">
+  		<table class="table table-bordered">
+  		 <thead class="text-uppercase btn-success">
+  		  <tr>
+  		   <th>#</th> 
+  		   <th>Predio</th> 
+  		   <th>Propietario</th>
+  		   <th>T&iacute;tulo</th> 
+  		   <th>Fecha T&iacute;t.</th> 
+  		   <th>Resol. POP</th> 
+  		   <th>Fecha POP</th> 
+  		  </tr> 
+  		 </thead> 
+  		 <tbody class="alert-success">
+  {% 
+  	for (var i in o.out.predios) {
+  %}
+  		  <tr>
+  		   <th scope="row">{%=parseInt(i)+1%}</th> 
+  		   <td>{%=o.out.predios[i].predio%}</td> 
+  		   <td>{%=o.out.predios[i].propietario%}</td> 
+  		   <td>{%=o.out.predios[i].titulo%}</td> 
+  		   <td>{%=o.out.predios[i].fecha_titulo%}</td> 
+  		   <td>{%=o.out.predios[i].resol_pop%}</td> 
+  		   <td>{%=o.out.predios[i].fec_resol_pop%}</td> 
+  		  </tr> 
+  {% } %}
+  		 </tbody>
+  		</table>	
+  	</div>
+	{% }else{ %}
+		<i class="fa fa-frown-o" aria-hidden="true"></i> Lo siento, no se encontraron predios para el &aacute;rea.
+	{% } %}
+	</p>
+	<h4 class="text-primary">Pol&iacute;gonos localizados:</h4>
+	{% include('tmpl-attribute-table', {id: o.out.lyr_over,geojson: o.out.geojson}); %}
+</script>
+
+<script type="text/javascript">
+
+function sicob_identificar_predio_success(result){
+	var source_title = $('#frm-sicob_identificar_predio #lyr_in option:selected').text();
+	result.geojson = JSON.parse(result.lyr_geojson);
+	addGeojsonLayer({id: result.lyr_over, geojson : result.geojson, title : source_title + ' > predios', type : "geosicob"});
+	var lyr_predios = [];
+	if (result.lyr_titulados) lyr_predios.push({id:result.lyr_titulados, title: 'Predios Titulados de ' + source_title});
+	if (result.lyr_pred_varios) lyr_predios.push({id:result.lyr_pred_varios, title: 'Otros predios de ' + source_title});
+	if (result.lyr_pred_pop) lyr_predios.push({id:result.lyr_pred_pop, title: 'POP de ' + source_title});
+	//[(result.lyr_titulados||''),(result.lyr_pred_varios||''),(result.lyr_pred_pop||'')].filter(Boolean).join();	
+	loadGeojson({
+		lyrs : lyr_predios,
+		success : function(result){
+			return true;
+		}
+	});
+	/*
+	if(lyr_predios != ''){
+		$.ajax({
+			url: GEOSICOB_URL + 'geojsonlist.php',
+			data:{"lyr_name":lyr_predios,"opciones":"webservice"},
+			success:function(response) {
+				//console.log(response);
+				response.rows.forEach(function(item, i){
+					addGeojsonLayer({id: item.lyr_name, geojson : item.geojson, title : item.lyr_name, type : "geosicob", process:"identificar_predio"});
+				});
+				return true;
+			}
+		});
+	}
+	*/
+	return true;
+}
+
+function sicob_identificar_predio_beforeRun(){
+	var frm = $('#frm-sicob_identificar_predio');
+	var lyr_in = frm.find('#lyr_in').val();
+	
+	//lyr_in = 'processed.f20170425adgecfbb7048831_nsi_pred';
+
+	if(!lyr_in || lyr_in==""){
+		showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-danger", msg : 'Debe seleccionar una capa.', delay: 0});
+		return false;
+	}
+	frm.find('#x_entradatxt').val('{"lyr_in":"' + lyr_in + '","geojson":true}');
+	return true;
+}
+</script>

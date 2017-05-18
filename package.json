@@ -1,0 +1,38 @@
+{
+  "name": "geosicob",
+  "version": "1.0.0",
+  "description": "GULP: Visualizador SIG del geoSICOB",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erikfva/geosicob-view.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/erikfva/geosicob-view/issues"
+  },
+  "homepage": "https://github.com/erikfva/geosicob-view#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "browser-sync": "^2.18.8",
+    "gulp": "^3.9.1",
+    "gulp-clean-css": "^3.0.4",
+    "gulp-concat": "^2.6.1",
+    "gulp-connect-php": "0.0.8",
+    "gulp-extract": "^1.0.1",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-if": "^2.0.2",
+    "gulp-inject": "^4.2.0",
+    "gulp-jshint": "^2.0.4",
+    "gulp-preprocess": "^2.0.0",
+    "gulp-uglify": "^2.1.2",
+    "gulp-wrap": "^0.13.0",
+    "jshint": "^2.9.4",
+    "pump": "^1.0.2",
+    "yargs": "^7.0.2"
+  }
+}

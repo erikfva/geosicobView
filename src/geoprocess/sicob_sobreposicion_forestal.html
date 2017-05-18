@@ -1,0 +1,85 @@
+<!-- Plantilla del geoproceso "sicob_sobreposicion_forestal" -->
+<script id="tmpl-sicob_sobreposicion_forestal" type="text/x-tmpl">
+  <form id="frm-sicob_sobreposicion_forestal" enctype="multipart/form-data" action="" method="POST">
+  	<input type="hidden" id="x_entradatxt" name="x_entradatxt" value="">
+    <div class="form-template form-group">
+      <label class="text-info" for="lyr_in">Seleccione la capa de pol&iacute;gonos:</label>
+    	<select class="navbar-inverse form-control" id="lyr_in" name="lyr_in">
+    	{% include('tmpl-geosicob-layers',{}); %} <!-- aqui se usa la plantilla para mostrar el listado de capas vectoriales disponibles. -->
+    	</select>
+    </div>
+  	<input type="hidden" id="modal-result" value="">
+  	<button name="btnsubmit" class="btn btn-lg btn-primary" onclick="runGeoprocess({%=JSON.stringify(o)%});" type="button" id="btnsubmit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Ejecutando...">Ejecutar</button>
+  </form>
+</script>
+
+<script id="tmpl-sicob_sobreposicion_forestal_result" type="text/x-tmpl">
+	<p style="word-break: break-all;">
+	A objeto de informar y verificar la existencia de  Sobre posici&oacute;n con TPFP, Reservas Forestales y las coberturas de derechos forestales (PGMF, PGMFp, POAF, POP, PDM, y otros),
+	se realiz&oacute; el an&aacutelisis de los pol&iacutegonos de la capa:
+	
+	obteniendo el siguiente resultado:
+		<div class="table-responsive shadow-b">
+  		<table class="table table-bordered">
+  		 <thead class="text-uppercase btn-success">
+  		  <tr>
+  		   <th>COBERTURA</th> 
+  		   <th>SUP. SOBREPUESTA<br />ha.</th> 
+  		   <th>%</th>
+  		  </tr> 
+  		 </thead> 
+  		 <tbody class="alert-success">
+  {% 
+  	for (var key in o.out) {
+  %}
+  		  <tr>
+  		   <th scope="row"><a href="#" onclick="loadGeojson({lyrs:'{%=o.out[key].lyr_over%}'})" class="text-success">{%=o.out[key].nombre%}</a></th> 
+  		   <td class="text-right">{%=parseFloat(o.out[key].sicob_sup_total).toFixed(4)%}</td> 
+  		   <td class="text-right">{%=parseFloat(o.out[key].porcentaje_sup).toFixed(1)%}</td> 
+  		  </tr> 
+  {% } %}
+  		 </tbody>
+  		</table>	
+  	</div>	
+	
+	</p>
+	<h4 class="text-primary">Resultado:</h4>
+</script>
+
+<script type="text/javascript">
+
+function sicob_sobreposicion_forestal_success(result){
+	console.log(result); return true;
+	result.geojson = JSON.parse(result.lyr_geojson);
+	addGeojsonLayer({id: result.lyr_over, geojson : result.geojson, title : result.lyr_over, type : "geosicob"});
+	var lyr_predios = [(result.lyr_titulados||''),(result.lyr_pred_varios||''),(result.lyr_pred_pop||'')].filter(Boolean).join();
+	if(lyr_predios != ''){
+		$.ajax({
+			url: GEOSICOB_URL + 'geojsonlist.php',
+			data:{"lyr_name":lyr_predios,"opciones":"webservice"},
+			success:function(response) {
+				//console.log(response);
+				response.rows.forEach(function(item, i){
+					addGeojsonLayer({id: item.lyr_name, geojson : item.geojson, title : item.lyr_name, type : "geosicob", process:"identificar_predio"});
+				});
+				return true;
+			}
+		});
+	}
+	return true;
+}
+
+function sicob_sobreposicion_forestal_beforeRun(){
+	var frm = $('#frm-sicob_sobreposicion_forestal');
+	var lyr_in = frm.find('#lyr_in').val();
+	
+	//lyr_in = 'processed.f20170425adgecfbb7048831_nsi_pred';
+
+	if(!lyr_in || lyr_in==""){
+		showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-danger", msg : 'Debe seleccionar una capa.', delay: 0});
+		return false;
+	}
+	frm.find('#x_entradatxt').val('{"lyr_in":"' + lyr_in + '"}');
+	return true;
+}
+</script>

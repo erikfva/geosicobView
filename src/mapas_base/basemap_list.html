@@ -1,0 +1,216 @@
+<!--
+++++++++++++ BaseMaps list items ++++++++++++ 
+-->
+<script id="tmpl-base-maps-item" type="text/x-tmpl">
+{% o.forEach(function(item, i){ %}
+	<div class="row thumbnail basemap-thumbnail"> 
+		<div class="col-xs-10 btn-thumbnail" id="{%=item.id%}"  role="button" href="#" onclick="onSelectBaseMap('{%=item.id%}',this);" >
+			<img src="{%=item.mapthumbs%}" alt="..." class="pull-left img-circle" width="50" height="50" style="margin-right: 5px;"> 
+			<h4 class="caption">{%=item.lyr_options.title%}</h4> 
+		</div>
+			
+		<div class="col-xs-2"> 
+		{% if (item.description && item.description != '') { %}
+			<a href="#{%=item.id%}-info" class="btn btn-link btn-toolbar" data-toggle="collapse">
+				<i class="glyphicon glyphicon-info-sign"></i>
+			</a>
+		{% } %}
+
+		{% if (item.template && item.template != '') { %}
+			<a href="#{%=item.id%}-config" class="btn btn-link btn-toolbar pull-left" data-toggle="collapse">
+				<i class="glyphicon glyphicon-cog" aria-hidden="true"></i>
+			</a>
+		{% } %}
+		</div>
+
+		{% if (item.description && item.description != '') { %}	
+		<div class="clearfix"></div>
+		<div id="{%=item.id%}-info" class="small collapse panel-info text-info panel-footer">
+ 			{% print(item.description, true); %}
+		</div>
+		{% } %}	
+		
+		{% if (item.template && item.template != '') { %}
+		<div class="clearfix"></div>
+		<div id="{%=item.id%}-config" class="collapse modal-footer">
+ 			{% include(item.template,item); %}
+		</div>
+		{% } %} 			
+	</div>
+{% }); %}
+</script>
+
+<script type="text/javascript">
+	
+	function renderBaseMapsPanel(_json, idContainer){
+		var container = document.getElementById(idContainer);
+		if(typeof container === 'undefined') return;
+		$(container).addClass('basemap container-fluid');
+
+    var htmlx = tmpl("tmpl-base-maps-item", _json);
+		$(container).append(htmlx);
+	}
+	
+	function onSelectBaseMap(id,el){
+		if($(el).closest('.basemap-thumbnail').hasClass('active') || $(el).hasClass('btn-thumbnail')){
+			var lyr_info = loadjsonLayer(window.jsonLayers, id);
+
+			if(lyr_info && typeof lyr_info.onSelectFn === 'function'){
+				lyr_info.onSelectFn(el);
+			} else {
+				setBaseMap(id , el);
+			}
+		}
+	}
+	
+	function setBaseMapConfig(idlayer, config){
+		map.getLayers().forEach(function (_lyr) {
+			
+			if (_lyr.getProperties().type =='base' &&  idlayer == _lyr.get('id')) {
+				//if( config.source || false){
+					if(_lyr.getSource().getParams || false){
+						_lyr.getSource().updateParams(config);
+						// @ifdef DEBUG
+						console.log(_lyr.getSource().getParams());
+						// @endif
+					}
+				//}
+			}            
+    });
+	} 
+	      
+	function setBaseMap(id, el, idlayer){
+			
+		map.getLayers().forEach(function (_lyr) {
+
+			if (_lyr.getProperties().type =='base') {
+				
+				if((idlayer || id) == _lyr.get('id')){
+					_lyr.setZIndex(-1);
+					_lyr.setVisible(true);
+				} else {
+					_lyr.setVisible(false);
+				}
+				/*
+				if(_lyr.getProperties().visible){
+					var params = _lyr.getSource().getParams? _lyr.getSource().getParams() : {};
+					console.log(params);
+				}
+				*/
+			}            
+    });
+    $(el).closest('.basemap').find('.basemap-thumbnail').removeClass('alert-info active'); 
+    $(el).closest('.basemap-thumbnail').addClass('alert-info active');			
+	}
+	
+	function loadjsonLayer(_json, id){
+		if(typeof ol === 'undefined') return null; //no se ha cargado openlayers
+		
+		//var lyr = map.getLayer(id);	
+		//if(!(lyr == null)) return lyr;
+
+		for(var i=0; i < _json.length; ++i) {
+    	var lyr_info = _json[i];
+	
+			if (lyr_info.id == id) {
+								
+					if(lyr_info.loaded || false){
+						// @ifdef DEBUG
+						console.log('ya esta cargado', lyr_info);
+						// @endif
+						return lyr_info; //si ya lo ha cargado
+					}
+ 					
+ 					var opTile = null;
+ 					
+        	switch(lyr_info.lyr_source.type){
+        		case 'BingMaps':
+        			$.each(['Aerial',
+        							'Road',
+        			        'AerialWithLabels'
+        			        ], function( index, value ) {
+        			  var lyrOp = JSON.parse(JSON.stringify(lyr_info.lyr_options));
+								lyrOp.type = 'base';
+								lyrOp.displayInLayerSwitcher = false; 
+								
+								var lyrSrcOp = JSON.parse(JSON.stringify(lyr_info.lyr_source)); 
+        				lyrSrcOp.imagerySet = value;
+        				lyrOp.source = new ol.source.BingMaps(lyrSrcOp);
+
+        				var lyr = new ol.layer.Tile(lyrOp); 
+								lyr.set('id',lyr_info.id + value );
+								lyr.setVisible(false);
+        				map.addLayer(lyr);
+        			});
+							lyr_info.loaded = true;  			  			
+        			break;
+        		case 'GOOGLE':
+        			$.each(['s', //Satellite 
+        							'm', //Map
+        			        'y', //Hybrid
+        			        't', //Terrain
+        			        'p'  //Terrain, Streets and Water
+        			        ], function( index, value ) {
+        			  var lyrOp = JSON.parse(JSON.stringify(lyr_info.lyr_options));
+								lyrOp.type = 'base'; 
+								lyrOp.displayInLayerSwitcher = false;
+								var lyrSrcOp = JSON.parse(JSON.stringify(lyr_info.lyr_source)); 
+        				lyrSrcOp.url += '&lyrs=' + value;
+        				lyrOp.source = new ol.source.XYZ(lyrSrcOp);
+
+        				var lyr = new ol.layer.Tile(lyrOp); 
+								lyr.set('id',lyr_info.id + value );
+								lyr.setVisible(false);
+        				map.addLayer(lyr);
+        			});
+							lyr_info.loaded = true; 			  			
+        			break;
+        		case 'OSM':
+        			opTile = lyr_info.lyr_options;
+        			opTile.source = new ol.source.OSM()
+        			break;
+        		case 'XYZ':
+        			opTile = lyr_info.lyr_options;
+        			opTile.source = new ol.source.XYZ(lyr_info.lyr_source);
+        			break;
+        		case 'Sentinel2':
+        			
+        			$.each(['1_NATURAL_COL0R',
+        			        '4_AGRICULTURE',
+        							'2_COLOR_INFRARED__VEGETATION_'
+        			        ], function( index, value ) {
+        			  var lyrOp = JSON.parse(JSON.stringify(lyr_info.lyr_options));
+								lyrOp.type = 'base';   
+								lyrOp.displayInLayerSwitcher = false;   	
+        				var lyrSrcOp = JSON.parse(JSON.stringify(lyr_info.lyr_source)); 
+        				lyrSrcOp.params.layers = value;      				
+        				lyrOp.source = new ol.source.TileWMS(lyrSrcOp);
+
+        				var lyr = new ol.layer.Tile(lyrOp); 
+								lyr.set('id',lyr_info.id + value );
+								lyr.setVisible(false);
+
+        				map.addLayer(lyr);
+        			});
+							lyr_info.loaded = true;
+        			break;
+        	}
+
+        	if(!(opTile == null)){
+        		opTile.type = 'base';
+        		opTile.displayInLayerSwitcher = false; 
+        		var lyr = new ol.layer.Tile(opTile); 
+						lyr.set('id',lyr_info.id);
+						lyr.setVisible(false);
+        		map.addLayer(lyr); 
+        	}
+        	if(lyr_info.onSelectFnName){
+        		lyr_info.onSelectFn = new Function('el', lyr_info.onSelectFnName + '(el);');
+        	}
+        	lyr_info.loaded = true;
+        	return lyr_info;
+			}
+		}
+		return null;
+	} 
+</script>

@@ -1,0 +1,83 @@
+<!-- Plantilla de la pantalla principal para la ejecucion de geoproceso -->
+<!-- que contiene el formulario de parametros de cada geoproceso. -->
+<script id="tmpl-frmgeoprocess" type="text/x-tmpl">
+<!-- Modal -->
+<div class="modal fade" id="dlg-frmgeoprocess" tabindex="-1" role="dialog" aria-labelledby="dlg-frmgeoprocess-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="dlg-frmgeoprocess-label">{%print(o.title, true);%}</h4>
+      </div>
+      <div class="modal-body navbar-inverse">
+	<!-- content goes here -->
+			{% include(o.templates.input,o); %}
+      </div>
+      <div class="collapse msg-board" style="margin:0px;"></div>
+    </div>
+  </div>
+</div>
+</script>
+
+<!-- Plantilla del contenido del componente "combobox" -->
+<!-- para mostrar el listado de capas vectoriales disponibles. -->
+<script id="tmpl-geosicob-layers" type="text/x-tmpl">
+{% map.getLayers().forEach(function (lyr) { %}
+	{% if ((lyr.get('type') || 'undefined') == 'geosicob') {  %}
+		<option value="{%=lyr.get('id')%}">{%=lyr.get('title')%}</option>
+	{% } %}           
+{% }); %}
+</script>
+
+<!--
+++++++++++++ Geoprocess list items ++++++++++++ 
+-->
+<script id="tmpl-geoprocess-item" type="text/x-tmpl">
+{% o.forEach(function(item, i){ %}
+	<div class="row thumbnail geoprocess-thumbnail"> 
+		<div class="col-xs-10 btn-thumbnail" id="{%=item.id%}"  role="button" href="#" onclick="showFrmProcess({%=JSON.stringify(item)%});" >
+			<img src="{%=item.icon%}" alt="..." class="pull-left img-circle" width="50" height="50" style="margin-right: 5px;"> 
+			<h4 class="caption">{%print(item.title, true); %}</h4> 
+		</div>
+			
+		<div class="col-xs-2" style="z-index:2"> 
+		{% if (item.description && item.description != '') { %}
+			<a href="#{%=item.id%}-info-gp" class="lead" data-toggle="collapse">
+				<i class="glyphicon glyphicon-info-sign"></i>
+			</a>
+		{% } %}
+
+		</div>
+
+		{% if (item.description && item.description != '') { %}	
+		<div class="clearfix"></div>
+		<div id="{%=item.id%}-info-gp" class="small panel-info text-info panel-footer collapse">
+ 			{% print(item.description, true); %}
+		</div>
+		{% } %}	
+		 			
+	</div>
+{% }); %}
+</script>
+
+<!-- Plantilla para mostrar los resultados. !-->
+<script id="tmpl-geoprocess-result" type="text/x-tmpl">
+{%
+var currentdate = new Date(); 
+var datetime = " " + pad(currentdate.getDate(),2) + "/"
+                + pad((currentdate.getMonth()+1),2)  + "/" 
+                + pad(currentdate.getFullYear(),2) + " @ "  
+                + pad(currentdate.getHours(),2) + ":"  
+                + pad(currentdate.getMinutes(),2) + ":" 
+                + pad(currentdate.getSeconds(),2);
+%}
+<div class="text-info">
+	<span class="shadow-b label label-info">
+	<i class="fa fa-clock-o" aria-hidden="true"></i>
+	{%=datetime%}
+	</span>
+	<h3><i class="fa fa-bolt" aria-hidden="true"></i> {%print(o.gp.title, true);%}</h3>
+</div>
+	{% include(o.gp.templates.result, o); %}
+	<hr>
+</script>

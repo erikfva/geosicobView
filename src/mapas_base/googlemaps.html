@@ -1,0 +1,16 @@
+<!--
+++++++++++++ GoogleMaps ++++++++++++ 
+-->
+<script type="text/javascript">
+	function onSelectGoo(el){
+		setBaseMap('lyr_goo', el, 'lyr_goo' + $('#goo-layer-select').val());
+	}		
+</script>
+<script id="tmpl-goo" type="text/x-tmpl">
+	<select id="goo-layer-select" onchange="onSelectBaseMap('lyr_goo',this);">
+		<option value="s">Im&aacute;gen satelital</option>
+		<option value="y">Im&aacute;gen con etiquetas</option>
+		<option value="m" selected>Mapa de calles</option>
+		<option value="t">Terreno</option>
+	</select>
+</script>

@@ -1,0 +1,87 @@
+{
+	"layers" : [
+		{
+			"id" : "lyr_sentinel",
+			"mapthumbs" : "images/mapthumbs/aerial.jpg",	
+			"description" : "Los Sentinel son una nueva flota de sat&eacute;lites dise&ntilde;ada espec&iacute;ficamente para proporcionar los abundantes datos e im&aacute;genes de que se nutre el programa Copernicus, de la Comisi&oacute;n Europea.",		
+			"lyr_options" : {
+				"title" : "Sentinel 2",
+				"preload"	: "Infinity"
+			},
+			"lyr_source" : {
+				"type"	:	"Sentinel2",
+				"url" : "http://services.sentinel-hub.com/v1/wms/b7b5e3ef-5a40-4e2a-9fd3-75ca2b81cb32",
+				"params"	:	{
+					"TRANSPARENT" : false,
+					"FORMAT" : "image/jpeg",
+					"priority":"mostRecent",
+					"gain":1,
+					"gamma":1,
+					"showLogo" : "false"
+				},
+				"maxZoom"	: "19"
+			},
+			"onSelectFnName" : "onSelectSentinel",
+			"template" : "tmpl-sentinel"
+		},
+		{
+			"id" : "lyr_bingmap",
+			"mapthumbs" : "images/mapthumbs/aerial.jpg",	
+			"description" : "Imagen de Bing Maps.",	
+			"onSelectFnName" : "onSelectBingMaps",
+			"lyr_options" : {
+				"title" : "Bing Maps",
+				"preload"	: "Infinity"
+			},
+			"lyr_source" : {
+				"type"	:	"BingMaps",
+				"key"		: "AlzgeOkUQhBfFhpjKogy4CXZd9Y3aAFYSpUHfRpaAYmgn4I0nmN0G64bJWwanmGe",
+				"imagerySet"	:	"Aerial",
+				"maxZoom"	: "19"				
+			},
+			"template" : "tmpl-bingmaps"
+		}, 
+		{
+			"id" : "lyr_osm",
+			"mapthumbs" : "images/mapthumbs/osm.jpg",
+			"description" : "Mapa de Open Street Maps.",
+			"lyr_options" : {
+				"title" : "Open Street Map (OSM)",
+				"preload"	: "Infinity"
+			},
+			"lyr_source" : {
+				"type"	:	"OSM"
+			}
+		},
+		{
+			"id" : "lyr_goo",
+			"mapthumbs" : "images/mapthumbs/dgr.jpg",
+			"description" : "Im&aacute;genes de Google.",
+			"onSelectFnName" : "onSelectGoo",
+			"lyr_options" : {
+				"title" : "Google Maps",
+				"preload": "Infinity"
+			},
+			"lyr_source" : {
+				"type"	:	"GOOGLE",
+				"url"		:	"http://mt.google.com/vt/x={x}&y={y}&z={z}",
+				"attribution" : "© Google, Inc"
+			},
+			"template" : "tmpl-goo"			
+		},
+		{
+			"id" : "lyr_dg",
+			"mapthumbs" : "images/mapthumbs/dgr.jpg",
+			"description" : "Im&aacute;genes de Digital Globe.",
+			"lyr_options" : {
+				"title" : "DigitalGlobe - Recent Imagery",
+				"preload" : "Infinity"
+			},
+			"lyr_source" : {
+				"type"	:	"XYZ",
+				"url"		:	"http://api.tiles.mapbox.com/v4/digitalglobe.nal0g75k/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNpeDBxMHhqazAxM3AyeW1naGk4Z3ZvNWoifQ.OeOjRXw4d88dtievm_W0Cg",
+				"attribution" : "© DigitalGlobe, Inc"
+			}
+		}		
+	]
+}

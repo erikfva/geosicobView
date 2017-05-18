@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<!-- FECHA: 24/08/2016 -->
+<html>
+
+<head>
+	<title>Prueba de servicio de carga de poligono shape</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="description" content="Description" />
+
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> 
+		
+	<!-- Google web fonts -->
+	<link href="http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700" rel='stylesheet' />
+
+	<!-- The main CSS file -->
+	<style>
+/*-------------------------
+    General Styles
+--------------------------*/
+
+html{
+    background-color:#ebebec;
+
+    background-image:-webkit-radial-gradient(center, #ebebec, #b4b4b4);
+    background-image:-moz-radial-gradient(center, #ebebec, #b4b4b4);
+    background-image:radial-gradient(center, #ebebec, #b4b4b4);
+
+   min-height:600px;
+}
+body{
+    font:15px/1.3 Arial, sans-serif;
+    color: #4f4f4f;
+    background-color : transparent;
+}
+/*----------------------------
+    The file upload form css
+-----------------------------*/
+    <!-- @if NODE_ENV!='production' -->
+    <!-- @include ../build/uploadgeofile/uploadfrm.css -->
+    <!-- @endif -->
+    
+    <!-- @if NODE_ENV='production' -->
+    <!-- @include ../build/uploadgeofile/uploadfrm.min.css -->
+    <!-- @endif -->
+	</style>
+
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+<?php
+	include_once('geosicob_api.php');
+//var_dump(@$_POST);	
+if(!@$_FILES["uploadedfile"] or !@$_POST["session_key"]){
+	//obtenemos una llave:
+	$session_key = get_session_key(["username"=>"admin","password"=>"admin"]);
+	$respuestajson = json_decode($session_key);
+	if($respuestajson->success <> "1"){
+		echo "No se ha podido obtener una credencial válida.";
+		exit;
+	}
+	$session_key = $respuestajson->session_key;
+}
+
+?>
+
+<script>
+function showresult(r){
+	$('<div class="alert alert-success" />').text(r).appendTo('body');
+}
+</script>
+
+<button type="button" class="btn btn-info btn-lg" onclick="uploadSHP( function(r){ showresult(r); } );">
+  Launch demo modal manual
+</button>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#dlgUploadSHP">
+  Launch demo modal
+</button>
+
+<!-- upload shape file form -->
+
+<!-- @if NODE_ENV!='production' -->
+    <!-- @include ../build/uploadgeofile/uploadfrm.html -->
+    <script>
+    <!-- @include ../build/uploadgeofile/uploadfrm.js -->
+    </script>
+<!-- @endif -->
+    
+<!-- @if NODE_ENV='production' -->
+    <!-- @include ../build/uploadgeofile/uploadfrm.min.html -->
+    <script>
+    <!-- @include ../build/uploadgeofile/uploadfrm.min.js -->
+    </script>
+<!-- @endif -->
+
+		<!-- JavaScript Includes -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-Knob/1.2.13/jquery.knob.min.js"></script>
+
+		<!-- jQuery File Upload Dependencies -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.17.0/js/vendor/jquery.ui.widget.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.17.0/js/jquery.iframe-transport.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.17.0/js/jquery.fileupload.min.js"></script>
+	
+	
+</body>
+
+</html>

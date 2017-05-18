@@ -1,0 +1,20 @@
+{
+	"process" : [
+		{
+			"id" : "sicob_obtener_predio",
+			"title" : "Identificar predio(s)",
+			"icon" : "images/mapthumbs/aerial.jpg",	
+			"description" : "Localiza  el(los) predio(s) donde se encuentra el pol&iacute;ono dado.",	
+			"actions" : {"onSuccess" : "sicob_identificar_predio_success","onBeforeRun" : "sicob_identificar_predio_beforeRun"},
+			"templates" : {"input":"tmpl-sicob_identificar_predio","result":"tmpl-sicob_identificar_predio_result"}
+		},
+		{
+			"id" : "sicob_analisis_sobreposicion",
+			"title" : "An&aacute;lisis de sobreposici&oacute;n forestal",
+			"icon" : "images/mapthumbs/aerial.jpg",	
+			"description" : "Sobrepone la &quot;capa&quot; de entrada con las capas de:<br /> --Asociaci&oacute;n Sociales del Lugar (ASL)<br /> --Plan Gral. de Manejo Forestal (PGMF)<br /> --Plan Operativo Anual Forestal (POAF)<br /> --Plan de Ordenamiento Predial (POP)<br /> --Plan de Desmonte (PDM)<br /> --Reservas Forestales (RF)<br /> --Reservas Privada de Patrimonio Natural (RPPN)<br /> --Tierras de Producci&oacute;n Forestal Permanente (TPFP)<br /> --Capacidad de Uso Mayor de la Tierra (CUMAT)",	
+			"actions" : {"onBeforeRun":"sicob_sobreposicion_forestal_beforeRun","onSuccess":"sicob_sobreposicion_forestal_success"},
+			"templates" : {"input":"tmpl-sicob_sobreposicion_forestal","result":"tmpl-sicob_sobreposicion_forestal_result"}
+		}		
+	]
+}
