@@ -34,7 +34,17 @@ gulp.task('mapas-base', function () {
   		}
   	)
   ))
-  .pipe(gulp.dest('build/'))
+  .pipe(gulp.dest('build/'));
+  gulp.src('src/mapas_base/bmpp/*.css').pipe(gulpif(argv.prod,concat('mapas_base.min.css'),concat('mapas_base.css')))
+  .pipe(gulpif(argv.prod,cleanCSS({compatibility: 'ie8'})))
+  .pipe(gulp.dest('build/'));
+});
+
+gulp.task('test-mapas-base', function () {
+  gulp.src('test/mapas_base.js').pipe(jshint()).pipe(jshint.reporter('default'))
+  .pipe(concat('mapas_base.min.js'))
+  .pipe(uglify())
+  .pipe(gulp.dest('test/'));  
 });
 
 gulp.task('geoprocess', function () {

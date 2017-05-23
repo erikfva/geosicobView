@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://openlayers.org/en/v4.1.1/css/ol.css" type="text/css">
     <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
     <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
-    <script src="https://openlayers.org/en/v4.1.1/build/ol.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.1.1/ol.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <!-- Latest compiled and minified JavaScript -->
@@ -25,10 +25,12 @@
   <body>
     <h1>Mapas base</h1>
     <div id="map"></div>
+    <div id="base"></div>
     <script type="text/javascript">
       var map = new ol.Map({
         target: 'map',
         layers: [
+        /*
           new ol.layer.Tile({
             title: 'Global Imagery',
             source: new ol.source.TileWMS({
@@ -36,6 +38,7 @@
               params: {LAYERS: 'nasa:bluemarble', TILED: true}
             })
           })
+          */
         ],
         view: new ol.View({
           projection: 'EPSG:4326',
@@ -48,11 +51,6 @@
   </body>
 </html>
 <script type="text/javascript">
-  fetch('../build/mapas_base.html').then((resp) => resp.text())
-.then(data => {
-  var div = document.body.appendChild(document.createElement('div'));
-  div.style.display = 'none';
-  div.innerHTML = data;
-  //console.log(data);
-});
+		const idpanel = 'base';
 </script>
+<script src="mapas_base.min.js"></script>
