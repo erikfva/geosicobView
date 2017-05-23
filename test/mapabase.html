@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.1.1/css/ol.css" type="text/css">
+    <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    <script src="https://openlayers.org/en/v4.1.1/build/ol.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+    <style>
+      #map {
+        height: 256px;
+        width: 512px;
+      }
+    </style>
+    <title>OpenLayers example</title>
+
+  </head>
+  <body>
+    <h1>Mapas base</h1>
+    <div id="map"></div>
+    <script type="text/javascript">
+      var map = new ol.Map({
+        target: 'map',
+        layers: [
+          new ol.layer.Tile({
+            title: 'Global Imagery',
+            source: new ol.source.TileWMS({
+              url: 'https://ahocevar.com/geoserver/wms',
+              params: {LAYERS: 'nasa:bluemarble', TILED: true}
+            })
+          })
+        ],
+        view: new ol.View({
+          projection: 'EPSG:4326',
+          center: [0, 0],
+          zoom: 0,
+          maxResolution: 0.703125
+        })
+      });
+    </script>
+  </body>
+</html>
+<script type="text/javascript">
+  fetch('../build/mapas_base.html').then((resp) => resp.text())
+.then(data => {
+  var div = document.body.appendChild(document.createElement('div'));
+  div.style.display = 'none';
+  div.innerHTML = data;
+  //console.log(data);
+});
+</script>
