@@ -7,6 +7,9 @@
   //console.log(data);
 });
 */
+function renderMapasBase(idcontainer){
+
+ if (typeof window.jsonLayers !== 'undefined') return;
 
 (function () {
   var span = document.createElement('span');
@@ -29,8 +32,8 @@
 
 
     $.when(
-    	$.get('../build/mapas_base.min.html',function(html){
-    		$(html).filter('script').each(function(i,ss){
+    	$.getJSON('http://anyorigin.com/go?url=http%3A//geosicob.bitballoon.com/mapas_base.min.html&callback=?', function(data){
+    		$(data.contents).filter('script').each(function(i,ss){
     			var s = document.createElement('script');
     			s.type = $(ss).attr('type') || 'text/javascript';
     			s.id = $(ss).attr('id') || '';
@@ -38,7 +41,7 @@
     			$("body").append(s);
     		});
     	}),
-    	$.get('../base-maps.json',{ dataType: "json" },function(data){
+    	$.get('http://res.cloudinary.com/erikvargas/raw/upload/v1495635822/geosicob/base-maps.json',{ dataType: "json" },function(data){
     		window.jsonLayers = data.layers;
     	}),
     	typeof window['tmpl'] === 'function'?$.noop():$.get('https://cdn.rawgit.com/blueimp/JavaScript-Templates/master/js/tmpl.min.js',function(ss){
@@ -47,9 +50,10 @@
     		s.text = ss;
     		$("body").append(s);
     	}),
-    	$.get('../build/mapas_base.min.css',function(css){
-    		$('<style/>').text(css).appendTo('head');
+    	$.getJSON('http://anyorigin.com/go?url=http%3A//geosicob.bitballoon.com/mapas_base.min.css&callback=?', function(data){
+    		$('<style/>').text(data.contents).appendTo('head');
     	})
     ).then(function(d,e){
-    		renderBaseMapsPanel(e[0].layers,idpanel);
+    		renderBaseMapsPanel(e[0].layers,idcontainer);
     });
+}

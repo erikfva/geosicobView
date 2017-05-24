@@ -9,6 +9,8 @@ var gulp = require('gulp'),
   extract = require('gulp-extract'),
   cleanCSS = require('gulp-clean-css'),
   preprocess = require('gulp-preprocess'),
+  fs = require('fs'),
+  insert = require('gulp-insert'),
   jshint = require('gulp-jshint');
 var browserSync = require('browser-sync').create();
 var php = require('gulp-connect-php');
@@ -16,35 +18,37 @@ var reload  = browserSync.reload;
 var argv = require('yargs').argv,
     gulpif = require('gulp-if');
 var inject = require('gulp-inject');
-var wrap = require("gulp-wrap");
 /*
 * Configuración de la tarea para concatenar listado de mapas bases 'mb'
 */
 
 gulp.task('mapas-base', function () {
 
+  gulp.src('src/mapas_base/bmpp/*.css').pipe(gulpif(argv.prod,concat('mapas_base.min.css'),concat('mapas_base.css')))
+  .pipe(gulpif(argv.prod,cleanCSS({compatibility: 'ie8'})))
+  .pipe(gulp.dest('build/'));
+ 
+	var css = wrapTags('mapas_base.min.css', {contents:fs.readFileSync("src/mapas_base/bmpp/bmpp.css", "utf8")} , true);
+	 
   gulp.src('src/mapas_base/*.html')
   .pipe(gulpif(argv.prod,concat('mapas_base.min.html'),concat('mapas_base.html')))
+  .pipe(insert.prepend(css))
   .pipe(gulpif(argv.prod, 
   	htmlmin(
   		{	collapseWhitespace: true, 
   			minifyJS:true, 
+  			minifyCSS: true,
   			removeComments: true,
   			processScripts : ['text/x-tmpl']
   		}
   	)
   ))
   .pipe(gulp.dest('build/'));
-  gulp.src('src/mapas_base/bmpp/*.css').pipe(gulpif(argv.prod,concat('mapas_base.min.css'),concat('mapas_base.css')))
-  .pipe(gulpif(argv.prod,cleanCSS({compatibility: 'ie8'})))
-  .pipe(gulp.dest('build/'));
-});
-
-gulp.task('test-mapas-base', function () {
-  gulp.src('test/mapas_base.js').pipe(jshint()).pipe(jshint.reporter('default'))
+  
+  gulp.src('src/mapas_base/mapas_base.js').pipe(jshint()).pipe(jshint.reporter('default'))
   .pipe(concat('mapas_base.min.js'))
   .pipe(uglify())
-  .pipe(gulp.dest('test/'));  
+  .pipe(gulp.dest('build/'));  
 });
 
 gulp.task('geoprocess', function () {
@@ -58,6 +62,7 @@ gulp.task('geoprocess', function () {
   	htmlmin(
   		{	collapseWhitespace: true, 
   			minifyJS:true, 
+  			minifyCSS: true,
   			removeComments: true,
   			processScripts : ['text/x-tmpl']
   		}
@@ -177,6 +182,14 @@ gulp.task('login', function (cb) {
 
 gulp.task('build-index',['login','mapas-base','landsat8','uploadgeofile', 'popupinfo','geoprocess'], function () {
 	gulp.src('src/index.html')
+ 	.pipe(inject(gulp.src('src/geoutils.js').pipe(gulpif(argv.prod,uglify())), {
+    starttag: '<!-- inject:geoutils -->',
+    removeTags : true,
+    transform: function (filePath, file) {
+      // return file contents as string 
+      return file.contents.toString('utf8')
+    }
+  }))
 	.pipe(inject(gulp.src(!!argv.prod?'build/landsat8.min.html':'build/landsat8.html'), {
     starttag: '<!-- inject:landsat8:{{ext}} -->',
     removeTags : true,

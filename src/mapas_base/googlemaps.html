@@ -7,10 +7,17 @@
 	}		
 </script>
 <script id="tmpl-goo" type="text/x-tmpl">
-	<select id="goo-layer-select" onchange="onSelectBaseMap('lyr_goo',this);">
-		<option value="s">Im&aacute;gen satelital</option>
-		<option value="y">Im&aacute;gen con etiquetas</option>
-		<option value="m" selected>Mapa de calles</option>
-		<option value="t">Terreno</option>
-	</select>
+<div class="modal-content modal-body form-horizontal">	
+	<div class=" form-group">
+    <label for="goo-layer-select" class="pull-left col-sm-2 control-label">Mapa</label>
+    <div class="col-sm-10">
+    	<select class="form-control" id="goo-layer-select" onchange="onSelectBaseMap('lyr_goo',this);">
+    		<option value="s">Im&aacute;gen satelital</option>
+    		<option value="y">Im&aacute;gen con etiquetas</option>
+    		<option value="m" selected>Mapa de calles</option>
+    		<option value="t">Terreno</option>
+    	</select>
+    </div>
+	</div>
+</div>
 </script>

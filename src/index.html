@@ -9,7 +9,6 @@
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> 
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/openlayers/4.0.1/ol.css" type="text/css">
   <link rel="stylesheet" href="sidebar-v2/ol3-sidebar.min.css" />
-  <link rel="stylesheet" href="bmpp/bmpp.css" />
 	<link rel="stylesheet" href="https://cdn.rawgit.com/Viglino/ol3-ext/gh-pages/control/layerswitchercontrol.css" />
  
 <style>
@@ -207,18 +206,7 @@
 
 
  <script>      
-        if (ol.Map.prototype.getLayer === undefined) {    
-        		ol.Map.prototype.getLayer = function (id) {
-                var layer = null;
-                this.getLayers().forEach(function (lyr) {
-                    if (id == lyr.get('id')) {
-                        layer = lyr;
-                    }            
-                });
-                return layer;
-        		}
-				}
-        
+       
         var map = new ol.Map({
             target: 'map',
             renderer: ["canvas", "dom"],
@@ -270,74 +258,6 @@
 		map.addControl(switcher);
 
 
-</script>
-
-
-<script type="text/javascript">
-       
-  function showLayerList(){
-   	$('.btn-expand.active,.sidebar-close:visible').trigger('click');
-   	setTimeout(function(){$('a[href="#layers"]').trigger('click');}, 1000)     	
-  }	
-  
-	function addGeojsonLayer(g){
-		if (!!map.getLayer(g.id)){
-			//console.log('ya esta cargado', o.sceneID);
-			return;
-		}
-		var vectorSource = new ol.source.Vector({
-			features: (new ol.format.GeoJSON({
-         projection: 'EPSG:4326',
-         featureProjection: 'EPSG:3857'
-			})).readFeatures(typeof g.geojson !== 'object'? JSON.parse(g.geojson):g.geojson)
-		});	
-		var vectorLayer = new ol.layer.Vector({
-			//style: styleFunction,
-			id		:	g.id,
-			title : g.title,
-			type	: g.type || "undefined",
-			source: vectorSource
-		});	
-    map.addLayer(vectorLayer);  
-    var extent = vectorSource.getExtent();
-    //console.log(extent);
-    vectorLayer.setExtent(extent);
-    map.getView().fit(extent, map.getSize());	
-	}
-	
-	function loadGeojson(o){
-  	if(o.lyrs && o.lyrs !== ''){
-  		$.ajax({
-  			url: GEOSICOB_URL + 'geojsonlist.php',
-  			data:{"lyr_name":o.lyrs,"opciones":"webservice"},
-  			success:function(response) {
-  				//console.log(response);
-  				if(typeof response.rows === 'undefined'){
-  					
-  				}
-  				response.rows.forEach(function(item, i){
-  					addGeojsonLayer({id: item.lyr_name, geojson : item.geojson, title : item.lyr_name, type : "geosicob", process:"identificar_predio"});
-  				});
-  				if(typeof o.success === 'function'){
-  					o.success(response);
-  				}
-  			},
-  			fail:function( jqXHR ) {
-  				console.log(jqXHR);
-  				if(typeof o.fail === 'function'){
-  					o.fail(jqXHR);
-  				}
-  			}
-  		});
-  	}
-	}
-	
-	function addSHP(data){
-		//console.log(data);
-		var json = JSON.parse(data);
-		addGeojsonLayer({id: json.lyr_fix_si || json.lyr_uploaded, geojson : json[json.lyr_fix_si || json.lyr_uploaded], title : json.filesource.replace(".zip", ""), type : "geosicob"});
-		showLayerList();
-	}    
 </script>
 
 <!-- DEMO geoJSON -->
@@ -425,6 +345,10 @@ var GEOSICOB_KEY = '';
 
 //<!-- FUNCIONES GENERALES (UTILITARIOS) -->
 
+//<!-- Funciones Openlayers -->
+  <!-- inject:geoutils -->
+	<!-- endinject -->
+	
 //muestra un mensaje que se desvanece automáticamente.
 function showAlertMsg(op){ 
 		if(!op.hasOwnProperty('delay')) op.delay = 3500;
@@ -460,8 +384,6 @@ function pad (str, max) {
     };
 })(jQuery);
 
-
-
 //Sidebar enhanced
 	$('.sidebar-header a').on('click',function(){ $(this).closest('.sidebar-header').find('a').removeClass('btn-info'); $(this).addClass('btn-info'); });
   $('.sidebar-pane.fulleable').each(function(){
@@ -474,7 +396,11 @@ function pad (str, max) {
   	})
   	.appendTo($p);
   });
-
+  
+  function showLayerList(){
+   	$('.btn-expand.active,.sidebar-close:visible').trigger('click');
+   	setTimeout(function(){$('a[href="#layers"]').trigger('click');}, 1000)     	
+  }	
 </script>
 
 <!-- Listado de mapas base -->

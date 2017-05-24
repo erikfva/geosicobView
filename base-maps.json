@@ -2,7 +2,7 @@
 	"layers" : [
 		{
 			"id" : "lyr_sentinel",
-			"mapthumbs" : "http://mt.sistemamedical.com/limesurvey/admin/grandpa.php?img=aerial.jpg",	
+			"mapthumbs" : "http://res.cloudinary.com/erikvargas/image/upload/v1495631493/geosicob/aerial.jpg",	
 			"description" : "Los Sentinel son una nueva flota de sat&eacute;lites dise&ntilde;ada espec&iacute;ficamente para proporcionar los abundantes datos e im&aacute;genes de que se nutre el programa Copernicus, de la Comisi&oacute;n Europea.",		
 			"lyr_options" : {
 				"title" : "Sentinel 2",
@@ -26,7 +26,7 @@
 		},
 		{
 			"id" : "lyr_bingmap",
-			"mapthumbs" : "http://mt.sistemamedical.com/limesurvey/admin/grandpa.php?img=aerial.jpg",	
+			"mapthumbs" : "http://res.cloudinary.com/erikvargas/image/upload/v1495631493/geosicob/aerial.jpg",	
 			"description" : "Imagen de Bing Maps.",	
 			"onSelectFnName" : "onSelectBingMaps",
 			"lyr_options" : {
@@ -43,7 +43,7 @@
 		}, 
 		{
 			"id" : "lyr_osm",
-			"mapthumbs" : "http://mt.sistemamedical.com/limesurvey/admin/grandpa.php?img=osm.jpg",
+			"mapthumbs" : "http://res.cloudinary.com/erikvargas/image/upload/v1495631497/geosicob/osm.jpg",
 			"description" : "Mapa de Open Street Maps.",
 			"lyr_options" : {
 				"title" : "Open Street Map (OSM)",
@@ -55,7 +55,7 @@
 		},
 		{
 			"id" : "lyr_goo",
-			"mapthumbs" : "http://mt.sistemamedical.com/limesurvey/admin/grandpa.php?img=dgr.jpg",
+			"mapthumbs" : "http://res.cloudinary.com/erikvargas/image/upload/v1495631490/geosicob/dgr.jpg",
 			"description" : "Im&aacute;genes de Google.",
 			"onSelectFnName" : "onSelectGoo",
 			"lyr_options" : {
@@ -71,7 +71,7 @@
 		},
 		{
 			"id" : "lyr_dg",
-			"mapthumbs" : "http://mt.sistemamedical.com/limesurvey/admin/grandpa.php?img=dgr.jpg",
+			"mapthumbs" : "http://res.cloudinary.com/erikvargas/image/upload/v1495631490/geosicob/dgr.jpg",
 			"description" : "Im&aacute;genes de Digital Globe.",
 			"lyr_options" : {
 				"title" : "DigitalGlobe - Recent Imagery",
