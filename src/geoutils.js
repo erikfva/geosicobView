@@ -18,8 +18,9 @@ if (ol.Map.prototype.getLayer === undefined) {
 //	type (opcional) : Valor para clasificar la capa, util para procesos posteriores.
 //										Ej.: Para las capas cargadas del geoSICOB se asiga automaticamente el valor de 'geosicob'.
 //	geojson (texto/JSON): Contenido en formato geoJSON de la capa, el formato puede ser en texto plano o en JSON. 
-	function addGeojsonLayer(o){
-		if (!!map.getLayer(o.id)){
+if (ol.Map.prototype.addGeojsonLayer === undefined) {    
+		ol.Map.prototype.addGeojsonLayer = function addGeojsonLayer(o){
+		if (!!this.getLayer(o.id)){
 			//console.log('ya esta cargado', g.id);
 			return;
 		}
@@ -29,19 +30,109 @@ if (ol.Map.prototype.getLayer === undefined) {
          featureProjection: 'EPSG:3857'
 			})).readFeatures(typeof o.geojson !== 'object'? JSON.parse(o.geojson):o.geojson)
 		});	
-		var vectorLayer = new ol.layer.Vector({
-			//style: styleFunction,
+		
+		var odefaultstyle = {
+			text : {
+				field : 'sicob_id',
+				type : 'normal',
+				maxresol : 1200,
+        align:'Center',
+        baseline:'Middle',
+        size:20,
+        offsetX:parseInt(0, 10),
+        offsetY:parseInt(0, 10),
+        weight:'bold',
+        rotation:parseFloat(0),
+        font: 'Arial',
+        fillColor:'blue',
+        outlineColor:'#ffffff',
+        outlineWidth:parseInt(3, 10)
+      }
+		};
+		
+    var getText = function(feature, resolution, ostyle) {
+    	//console.log(ostyle);
+        var type = ostyle.text.type;
+        var maxResolution = ostyle.text.maxresol;
+        var text = '' + feature.get(ostyle.text.field);
+
+        if (resolution > maxResolution) {
+          text = '';
+        } else if (type == 'hide') {
+          text = '';
+        } else if (type == 'shorten') {
+          text = text.trunc(12);
+        } else if (type == 'wrap') {
+          text = stringDivider(text, 16, '\n');
+        }
+
+        return text;
+      };		
+		var createTextStyle = function(feature, resolution, ostyle) {
+        var align = ostyle.text.align;
+        var baseline = ostyle.text.baseline;
+        var size = ostyle.text.size;
+        var offsetX = parseInt(ostyle.text.offsetX, 10);
+        var offsetY = parseInt(ostyle.text.offsetY, 10);
+        var weight = ostyle.text.weight;
+        var rotation = parseFloat(ostyle.text.rotation);
+        var font = weight + ' ' + size + 'px ' + ostyle.text.font;
+        var fillColor = ostyle.text.fillColor;
+        var outlineColor = ostyle.text.outlineColor;
+        var outlineWidth = parseInt( ostyle.text.outlineWidth, 10);
+
+        return new ol.style.Text({
+          textAlign: align,
+          textBaseline: baseline,
+          font: font,
+          text: getText(feature, resolution, ostyle),
+          fill: new ol.style.Fill({color: fillColor}),
+          stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth}),
+          offsetX: offsetX,
+          offsetY: offsetY,
+          rotation: rotation
+        });
+      };
+
+		var geosicobStyles = {
+    	default: new ol.style.Style({
+    		stroke: new ol.style.Stroke({
+    			color: 'blue',
+    			//lineDash: [4],
+    			width: 2
+    		}),
+    		fill: new ol.style.Fill({
+    			color: 'rgba(0, 0, 255, 0.1)'
+    		})
+    	})
+    };
+    
+    var opVectorLayer = {
+			ostyle: o.ostyle || odefaultstyle,
+			style: geosicobStylesFunction,
 			id		:	o.id,
 			title : o.title || ("Capa: " + o.id),
 			type	: o.type || "undefined",
 			source: vectorSource
-		});	
-    map.addLayer(vectorLayer);  
+		};  
+    
+    function geosicobStylesFunction(feature, resolution) {
+    	if (feature.get('geosicobStyle')) {
+        return geosicobStyles.blue;
+    	} else {
+    		geosicobStyles.default.setText(createTextStyle(feature, resolution, vectorLayer.O.ostyle));
+    		return geosicobStyles.default;
+    	}
+		}
+		
+		var vectorLayer = new ol.layer.Vector(opVectorLayer);	
+    this.addLayer(vectorLayer);  
     var extent = vectorSource.getExtent();
     //console.log(extent);
     vectorLayer.setExtent(extent);
-    map.getView().fit(extent, map.getSize());	
+    this.getView().fit(extent, this.getSize());	
 	}
+}
 //**********************************************//
 // Carga una capa geoJSON desde el servidor del geoSICOB.
 // Importante!!! declar antes la variable global "GEOSICOB_URL", ej.: var GEOSICOB_URL = 'http://192.168.50.9:8084/gsadmin';

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.1.1/css/ol.css" type="text/css">
+    <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.1.1/ol.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+    <style>
+      #map {
+        height: 256px;
+        width: 512px;
+      }
+    </style>
+    <title>OpenLayers example</title>
+
+  </head>
+  <body>
+    <h1>Mapas base</h1>
+    <div id="map"></div>
+    <div id="base"></div>
+    <script type="text/javascript">
+        var map = new ol.Map({
+            target: 'map',
+            renderer: ["canvas", "dom"],
+            layers: [
+            /*
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+                */
+            ],
+            loadTilesWhileInteracting: true,
+            view: new ol.View({
+                center: ol.proj.transform([-61.3, -16.80], 'EPSG:4326', 'EPSG:3857'), //+/- en SCZ
+                zoom: 8
+            })
+        });
+ 
+    </script>
+  </body>
+</html>
+
+<script src="../src/geoutils.js"></script>
+<!-- DEMO geoJSON -->
+<script type="text/javascript">
+
+      $.ajax({
+         // 'global': false,
+          'url': 'https://gist.githubusercontent.com/anonymous/3e738666582850683f64534e8896511e/raw/131fab76c6f68c54206cf415fdf24ce27967fd32/test1.geojson',
+          'dataType': "json",
+          'success': function (data) {
+          	map.addGeojsonLayer({id: 'testjson1', geojson : data, title : 'Test JSON1'});        	
+          	map.getLayer('testjson1').getProperties().ostyle.text.size = 15;
+          	map.getLayer('testjson1').getProperties().ostyle.text.field = 'sicob_sup';
+          }
+      });
+      $.ajax({
+         // 'global': false,
+          'url': 'https://gist.githubusercontent.com/anonymous/64023d518f555bf1f344927541fb8714/raw/e01ebcbae18043a4c4a23522970a0ce46acba323/test2.geojson',
+          'dataType': "json",
+          'success': function (data) {
+          	map.addGeojsonLayer({id: 'testjson2', geojson : data, title : 'Test JSON2'});
+          }
+      });
+
+
+</script>
