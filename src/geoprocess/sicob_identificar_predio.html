@@ -74,6 +74,9 @@ function sicob_identificar_predio_success(result){
 		lyrs : lyr_predios,
 		success : function(result){
 			return true;
+		},
+		fail : function(jqXHR){
+			return false;
 		}
 	});
 	/*

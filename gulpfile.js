@@ -24,11 +24,11 @@ var inject = require('gulp-inject');
 
 gulp.task('mapas-base', function () {
 
-  gulp.src('src/mapas_base/bmpp/*.css').pipe(gulpif(argv.prod,concat('mapas_base.min.css'),concat('mapas_base.css')))
+  gulp.src('src/mapas_base/*.css').pipe(gulpif(argv.prod,concat('mapas_base.min.css'),concat('mapas_base.css')))
   .pipe(gulpif(argv.prod,cleanCSS({compatibility: 'ie8'})))
   .pipe(gulp.dest('build/'));
  
-	var css = wrapTags('mapas_base.min.css', {contents:fs.readFileSync("src/mapas_base/bmpp/bmpp.css", "utf8")} , true);
+	var css = wrapTags('mapas_base.min.css', {contents:fs.readFileSync(argv.prod?"build/mapas_base.min.css":"build/mapas_base.css", "utf8")} , true);
 	 
   gulp.src('src/mapas_base/*.html')
   .pipe(gulpif(argv.prod,concat('mapas_base.min.html'),concat('mapas_base.html')))

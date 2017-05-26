@@ -388,11 +388,11 @@ function pad (str, max) {
 	$('.sidebar-header a').on('click',function(){ $(this).closest('.sidebar-header').find('a').removeClass('btn-info'); $(this).addClass('btn-info'); });
   $('.sidebar-pane.fulleable').each(function(){
   	var $p = $(this); 
-  	$('<span class="btn text-info btn-xs btn-expand" style="position: absolute;bottom: 5px;right: 20px;z-index: 10;"/>')
+  	var $btnExpand = $('<span class="btn text-info btn-xs btn-expand" style="position: absolute;bottom: 5px;right: 20px;z-index: 10;"/>')
   	.html('<i class=" fa fa-expand" aria-hidden="true"></i>')
   	.on('click',function(){
   		$p.toggleClass('full-screen');
-  		$(this).find('i').toggleClass('fa-expand fa-compress');
+  		$btnExpand.find('i').toggleClass('fa-expand fa-compress');
   	})
   	.appendTo($p);
   });

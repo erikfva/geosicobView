@@ -100,6 +100,7 @@ $(function(){
             	$(this).fadeOut();
             	
             	if(typeof GEOSICOB_KEY !== 'undefined') $('#upload input[name="session_key"]').val(GEOSICOB_KEY);
+            	data.form[0].action = GEOSICOB_URL + 'geosicob_upload.php' ;
             	jqXHR = data.submit()
             	.fail(function (jqXHR, textStatus, errorThrown) {
             		data.msg =  errorThrown;
