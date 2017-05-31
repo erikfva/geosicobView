@@ -116,36 +116,38 @@
             })
         });
 
+    /* Agregando el menu para seleccionar Mapa Base */
     $.when(
     	$.getScript('http://viglino.github.io/ol3-ext/control/buttoncontrol.js'),
     	$.getScript('http://viglino.github.io/ol3-ext/control/togglecontrol.js'),  	   
     	$.getStylesheet('http://viglino.github.io/ol3-ext/control/overlaycontrol.css'), 
     	$.getScript('http://viglino.github.io/ol3-ext/control/overlaycontrol.js'))
     .then(function () {
-      console.log('the css and js loaded successfully and are both ready');
       
 			$('<div id="menu"/>')
-			.append('<h1>Menu</h1>')
-			.append('<p style="border-bottom:1px solid #999;"><i>ol.control.Overlay</i> can be used to display a menu or information on the top of the map.</p>')
-			.append('<div class="data"></div>')
-			.appendTo('body');
-			
-
-	var menu = new ol.control.Overlay ({ closeBox : true, className: "slide-left menu", content: $("#menu") });
-	map.addControl(menu);
-
-	// A toggle control to show/hide the menu
-	var t = new ol.control.Toggle(
-			{	html: '<span class="glyphicon glyphicon-globe" aria-hidden="true"></span>',
-				className: "menu",
-				title: "Menu",
-				onToggle: function() { menu.toggle(); }
-			});
-	map.addControl(t);
-
+			.append('<div id="base"></div>')
+			.appendTo('body');		
+    	var menu = new ol.control.Overlay ({ closeBox : true, className: "slide-left menu", content: $("#menu") });
+    	map.addControl(menu);
+    	$('.slide-left.menu').css('overflow','auto');  
+    	// A toggle control to show/hide the menu
+    	var t = new ol.control.Toggle(
+    			{	html: '<span class="glyphicon glyphicon-globe" aria-hidden="true"></span>',
+    				className: "menu",
+    				title: "Menu",
+    				onToggle: function() { menu.toggle(); }
+    			});
+    	map.addControl(t);
+    	
+    	$.when(
+    		$.getScript('../src/mapas_base/mapas_base.js')
+        //$.getScript('../build/mapas_base.min.js')
+      ).then(function () {
+      	renderMapasBase('base');
+      });
 
     }, function () {
-      console.log('an error occurred somewhere');
+      console.log('No se pudo crear el menu de Mapas Base.');
     });
  
     </script>

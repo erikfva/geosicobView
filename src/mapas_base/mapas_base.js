@@ -46,6 +46,10 @@ function renderMapasBase(idcontainer){
     	})
     ).then(function(){
     		renderBaseMapsPanel(jsonLayers,idcontainer);
+    		$('[data-toggle="collapse"]').click(function(){
+    			$($(this).attr('href')).toggleClass('collapse');
+    			return false;
+    		});
     },
     function (e) {
     	console.log(e, 'an error occurred somewhere');
