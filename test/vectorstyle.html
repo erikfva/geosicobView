@@ -19,14 +19,86 @@
         width: 512px;
       }
     </style>
+
+<style>
+		.ol-overlay.menu
+		{	width: 30%;
+			background: #fff;
+			color: #333;
+			box-shadow: 0px 0px 5px #000;
+			padding: 0.5em;
+			-webkit-transition: all 0.25s;
+			transition: all 0.25s;
+		}
+		/* style the close box */
+		.ol-overlay.menu .ol-closebox
+		{	color: #369;
+			top: 0.5em;
+		}
+		.ol-overlay.menu .ol-closebox:before
+		{	content:"\e014";
+			font-family:'Glyphicons Halflings';
+		}
+		#menu
+		{	padding-top: 1.5em;
+			font-size: 0.9em;
+		}
+		/* menu button */
+		.ol-control.menu
+		{	top: 0.5em;
+			left: 0.5em;
+		}
+		.ol-control.menu i
+		{	color: #fff;
+		}
+		.ol-zoom
+		{	left: auto;
+			right: 0.5em;
+		}
+		.ol-rotate 
+		{	right: 3em;
+		}
+		.ol-touch .ol-rotate 
+		{	right: 3.5em;
+		}
+		/**/
+		.ol-overlay img
+		{	max-width: 90%;
+		}
+		.data,
+		.data p
+		{	margin:0;
+			text-align: center;
+			font-size:0.9em;
+		}
+		.slide-left.menu{
+			min-width : 300px;
+		}
+</style>
+
     <title>OpenLayers example</title>
 
   </head>
   <body>
     <h1>Mapas base</h1>
     <div id="map"></div>
+
     <div id="base"></div>
     <script type="text/javascript">
+
+(function($) {
+  $.getStylesheet = function (href) {
+    var $d = $.Deferred();
+    var $link = $('<link/>', {
+       rel: 'stylesheet',
+       type: 'text/css',
+       href: href
+    }).appendTo('head');
+    $d.resolve($link);
+    return $d.promise();
+  };
+})(jQuery);
+
         var map = new ol.Map({
             target: 'map',
             renderer: ["canvas", "dom"],
@@ -43,6 +115,38 @@
                 zoom: 8
             })
         });
+
+    $.when(
+    	$.getScript('http://viglino.github.io/ol3-ext/control/buttoncontrol.js'),
+    	$.getScript('http://viglino.github.io/ol3-ext/control/togglecontrol.js'),  	   
+    	$.getStylesheet('http://viglino.github.io/ol3-ext/control/overlaycontrol.css'), 
+    	$.getScript('http://viglino.github.io/ol3-ext/control/overlaycontrol.js'))
+    .then(function () {
+      console.log('the css and js loaded successfully and are both ready');
+      
+			$('<div id="menu"/>')
+			.append('<h1>Menu</h1>')
+			.append('<p style="border-bottom:1px solid #999;"><i>ol.control.Overlay</i> can be used to display a menu or information on the top of the map.</p>')
+			.append('<div class="data"></div>')
+			.appendTo('body');
+			
+
+	var menu = new ol.control.Overlay ({ closeBox : true, className: "slide-left menu", content: $("#menu") });
+	map.addControl(menu);
+
+	// A toggle control to show/hide the menu
+	var t = new ol.control.Toggle(
+			{	html: '<span class="glyphicon glyphicon-globe" aria-hidden="true"></span>',
+				className: "menu",
+				title: "Menu",
+				onToggle: function() { menu.toggle(); }
+			});
+	map.addControl(t);
+
+
+    }, function () {
+      console.log('an error occurred somewhere');
+    });
  
     </script>
   </body>
@@ -53,21 +157,51 @@
 <script type="text/javascript">
 
       $.ajax({
-         // 'global': false,
           'url': 'https://gist.githubusercontent.com/anonymous/3e738666582850683f64534e8896511e/raw/131fab76c6f68c54206cf415fdf24ce27967fd32/test1.geojson',
           'dataType': "json",
           'success': function (data) {
-          	map.addGeojsonLayer({id: 'testjson1', geojson : data, title : 'Test JSON1'});        	
-          	map.getLayer('testjson1').getProperties().ostyle.text.size = 15;
-          	map.getLayer('testjson1').getProperties().ostyle.text.field = 'sicob_sup';
+          	map.addGeojsonLayer({
+          		id: 'testjson1', 
+          		geojson : data, 
+          		title : 'Test JSON1',
+          		geosicobStyle : {
+          			text : {
+          				size:12,
+          				color:'red',
+          				field:'sicob_sup'
+          			}
+          		} 
+          	});
+          	/* OTRAS FORMAS DE ASIGNAR ESTILOS geosicob:
+          	.geosicobStyle({
+          		text : {
+          			size:12,
+          			color:'red',
+          			field:'sicob_sup'
+          		}
+          	});
+          	*/
+          	/*
+          	map.getLayer('testjson1').geosicobStyle({
+          		text : {
+          			size:12,
+          			color:'red',
+          			field:'sicob_sup'
+          		}
+          	});
+          	*/        	
+          	/*        	
+          	map.getLayer('testjson1').getProperties().geosicobStyle.text.size = 12;
+          	map.getLayer('testjson1').getProperties().geosicobStyle.text.color = 'red';
+          	map.getLayer('testjson1').getProperties().geosicobStyle.text.field = 'sicob_sup';
+          	*/
           }
       });
       $.ajax({
-         // 'global': false,
           'url': 'https://gist.githubusercontent.com/anonymous/64023d518f555bf1f344927541fb8714/raw/e01ebcbae18043a4c4a23522970a0ce46acba323/test2.geojson',
           'dataType': "json",
           'success': function (data) {
-          	map.addGeojsonLayer({id: 'testjson2', geojson : data, title : 'Test JSON2'});
+          	map.addGeojsonLayer({id: 'testjson2', geojson : data, title : 'Test JSON2', geosicobStyle:geosicobStyles.titulado});
           }
       });
 

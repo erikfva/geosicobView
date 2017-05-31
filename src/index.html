@@ -268,7 +268,7 @@
           'url': 'https://gist.githubusercontent.com/anonymous/c0bcded232580784bb6cc79fd6c4d22b/raw/dab5dc7397a0e8a0025f7e0b4534adaafd001242/map.geojson',
           'dataType': "json",
           'success': function (data) {
-          	addGeojsonLayer({id: 'testjson', geojson : data, title : 'Test JSON'});
+          	map.addGeojsonLayer({id: 'testjson', geojson : data, title : 'Test JSON'});
           					document.getElementById('tool-geoprocess-result').innerHTML = tmpl('tmpl-attribute-table', {id: 'testjson'});
 										$('a[href="#geoprocesses"]').trigger('click').delay(3500);
 										$('a[href="#tool-geoprocess-result"]').show().trigger('click');	
@@ -397,10 +397,18 @@ function pad (str, max) {
   	.appendTo($p);
   });
   
-  function showLayerList(){
-   	$('.btn-expand.active,.sidebar-close:visible').trigger('click');
-   	setTimeout(function(){$('a[href="#layers"]').trigger('click');}, 1000)     	
-  }	
+function showLayerList(){
+ 	$('.btn-expand.active,.sidebar-close:visible').trigger('click');
+ 	setTimeout(function(){$('a[href="#layers"]').trigger('click');}, 1000)     	
+}	
+  
+function addSHP(data){
+	//console.log(data);
+	var json = JSON.parse(data);
+	map.addGeojsonLayer({id: json.lyr_fix_si || json.lyr_uploaded, geojson : json[json.lyr_fix_si || json.lyr_uploaded], title : json.filesource.replace(".zip", ""), type : "geosicob"});
+	showLayerList();
+}
+
 </script>
 
 <!-- Listado de mapas base -->

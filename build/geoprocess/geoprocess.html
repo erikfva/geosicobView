@@ -147,9 +147,9 @@ var datetime = " " + pad(currentdate.getDate(),2) + "/"
 function sicob_identificar_predio_success(result){
 	var source_title = $('#frm-sicob_identificar_predio #lyr_in option:selected').text();
 	result.geojson = JSON.parse(result.lyr_geojson);
-	addGeojsonLayer({id: result.lyr_over, geojson : result.geojson, title : source_title + ' > predios', type : "geosicob"});
+	map.addGeojsonLayer({id: result.lyr_over, geojson : result.geojson, title : source_title + ' -> predios', type : "geosicob"});
 	var lyr_predios = [];
-	if (result.lyr_titulados) lyr_predios.push({id:result.lyr_titulados, title: 'Predios Titulados de ' + source_title});
+	if (result.lyr_titulados) lyr_predios.push({id:result.lyr_titulados, title: 'Predios Titulados de ' + source_title, geosicobStyle : {fill:{color:'green'}}});
 	if (result.lyr_pred_varios) lyr_predios.push({id:result.lyr_pred_varios, title: 'Otros predios de ' + source_title});
 	if (result.lyr_pred_pop) lyr_predios.push({id:result.lyr_pred_pop, title: 'POP de ' + source_title});
 	//[(result.lyr_titulados||''),(result.lyr_pred_varios||''),(result.lyr_pred_pop||'')].filter(Boolean).join();	
