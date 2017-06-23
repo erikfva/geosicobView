@@ -9,7 +9,13 @@
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> 
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/openlayers/4.0.1/ol.css" type="text/css">
   <link rel="stylesheet" href="sidebar-v2/ol3-sidebar.min.css" />
-	<link rel="stylesheet" href="https://cdn.rawgit.com/Viglino/ol3-ext/gh-pages/control/layerswitchercontrol.css" />
+<!--
+Usar librerias de github:
+1.- Find your link on GitHub, and click to the "Raw" version of the file.
+2.- Copy the URL, and link to it.
+3.- Change raw.githubusercontent.com to rawgit.com (non-production) or cdn.rawgit.com (production)
+-->   
+	<link rel="stylesheet" href="https://rawgit.com/erikfva/ol3-ext/gh-pages/control/layerswitchercontrol.css" />
  
 <style>
         body {
@@ -68,7 +74,7 @@
 	<script src="https://cdn.rawgit.com/blueimp/JavaScript-Templates/master/js/tmpl.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/openlayers/4.0.1/ol.js" type="text/javascript"></script>
 	<!-- Control LayerSwitcher -->
-	<script type="text/javascript" src="https://cdn.rawgit.com/Viglino/ol3-ext/gh-pages/control/layerswitchercontrol.js"></script>
+	<script  src="https://rawgit.com/erikfva/ol3-ext/gh-pages/control/layerswitchercontrol.js"></script>
 
 </head>
 <body>
@@ -340,7 +346,8 @@
 </html>
 
 <script type="text/javascript">
-var GEOSICOB_URL = 'http://localhost/abt/';
+var GEOSICOB_URL = 'http://192.168.50.9:8084/gsadmin2/'; 
+//var GEOSICOB_URL = 'http://localhost/abt/'; 
 var GEOSICOB_KEY = '';
 
 //<!-- FUNCIONES GENERALES (UTILITARIOS) -->

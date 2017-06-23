@@ -100,7 +100,7 @@ $(function(){
             	$(this).fadeOut();
             	
             	if(typeof GEOSICOB_KEY !== 'undefined') $('#upload input[name="session_key"]').val(GEOSICOB_KEY);
-            	data.form[0].action = GEOSICOB_URL + 'geosicob_upload.php' ;
+            	data.form[0].action = GEOSICOB_URL + 'shapefilesadd.php' ;
             	jqXHR = data.submit()
             	.fail(function (jqXHR, textStatus, errorThrown) {
             		data.msg =  errorThrown;
@@ -111,11 +111,9 @@ $(function(){
             		//console.log(result, textStatus, jqXHR);
 
             		if(textStatus === 'success'){           			
-            			var r = JSON.parse(result);
-            			//console.log(r);
 
-            			if(r.success === '0'){
-            				data.msg = r.msg;
+            			if(result.success === '0'){
+            				data.msg = result.msg;
             				data.handleError.call();
             				tpl.find('a.btn-primary').fadeIn();
             				return;
@@ -126,7 +124,7 @@ $(function(){
                     $('#drop').show();
                 	});
                 	*/
-                	$('#upload #modal-result').val(result);
+                	$('#upload #modal-result').val(JSON.stringify(result) );
                 	$('#dlgUploadSHP .close').click();
             		}
             		           		
