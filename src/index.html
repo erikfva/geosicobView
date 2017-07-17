@@ -4,9 +4,9 @@
     <title>geoSICOB View</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-			
+
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> 
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/openlayers/4.0.1/ol.css" type="text/css">
   <link rel="stylesheet" href="sidebar-v2/ol3-sidebar.min.css" />
 <!--
@@ -14,9 +14,9 @@ Usar librerias de github:
 1.- Find your link on GitHub, and click to the "Raw" version of the file.
 2.- Copy the URL, and link to it.
 3.- Change raw.githubusercontent.com to rawgit.com (non-production) or cdn.rawgit.com (production)
--->   
+-->
 	<link rel="stylesheet" href="https://rawgit.com/erikfva/ol3-ext/gh-pages/control/layerswitchercontrol.css" />
- 
+
 <style>
         body {
             padding: 0;
@@ -32,10 +32,10 @@ Usar librerias de github:
         	-moz-box-shadow:    0px 10px 21px 0px rgba(50, 50, 50, 0.41);
         	box-shadow:         0px 10px 21px 0px rgba(50, 50, 50, 0.41);
         }
-       
-    .sidebar-pane{position: relative;width: 100%;height: 100%;overflow-y: hidden;padding:0px;padding-bottom:40px}    
+
+    .sidebar-pane{position: relative;width: 100%;height: 100%;overflow-y: hidden;padding:0px;padding-bottom:40px}
 		.sidebar-header{top:0px;position:absolute;width:100%;z-index:1;padding: 0px;margin: 0px;left: 0px;padding-left: 10px;} /*para fijar el titulo arriba.*/
-		.sidebar-body{margin-top:40px; overflow-y:auto; height:100%}         
+		.sidebar-body{margin-top:40px; overflow-y:auto; height:100%}
 
     .sidebar{
     	/*max-width:390px; */
@@ -44,12 +44,12 @@ Usar librerias de github:
     	box-sizing: content-box ;
     	z-index : 1000; /* para que no se solape con ventanas modal de bootstrap*/
     }
-    
+
 		@media (min-width: 10px) and (max-width: 768px) {
     	.sidebar {
-      	max-width: 350px; 
-      } 
-    }    
+      	max-width: 350px;
+      }
+    }
 		.sidebar-pane.full-screen{
 			position: fixed;
 			top:0px;
@@ -65,10 +65,10 @@ Usar librerias de github:
 		white-space: inherit;
 		max-width : inherit;
 		word-break: break-all;
-	}	
-	
+	}
+
 </style>
-    
+
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	<script src="https://cdn.rawgit.com/blueimp/JavaScript-Templates/master/js/tmpl.min.js"></script>
@@ -119,48 +119,46 @@ Usar librerias de github:
 
         <!-- Tab panels -->
         <div class="sidebar-content modal-content">
+            <!-- MAPAS BASE -->
             <div class="sidebar-pane" id="maps">
-                
                  <h1 class="sidebar-header" >
                     Mapa base
                     <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
                 </h1>
-                
-
                 <div class="sidebar-body panel-body">
                 	<div id="tool-mapa-base"></div>
                 </div>
             </div>
 
+            <!-- CAPAS -->
             <div class="sidebar-pane" id="layers">
                 <h1 class="sidebar-header">Capas<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
                 <div class="sidebar-body panel-body">
                 	<div class="layerSwitcher"></div>
                 </div>
             </div>
-            
+
             <!-- LANDSAT 8 -->
             <div class="sidebar-pane" id="search" style="padding-bottom:200px" onopen="setTimeout(function(){ overviewMapControl.setCollapsed(true);  $('#overviewsearch button').click() }, 100); searchLandsat();">
-                <h1  class="sidebar-header">Landsat 8 
+                <h1  class="sidebar-header">Landsat 8
                 	<span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
                 	<div class="btn-group" role="group" aria-label="...">
                 		<button class="btn btn-xs btn-info btn-update hide" onclick="searchLandsat()">Mostrar resultado</button>
                 	</div>
-                	
                 </h1>
                 <div class="sidebar-body panel-body" style="margin-top:200px">
                 	<div id="overviewsearch" style="width:100%;"></div>
-                	
+
                 	<div class="hide alert alert-danger need-zoom">Necesita acercarse mas (haga zoom sobre el mapa).</div>
                 	<div id="search-result">
-                		<h1 class="text-info text-center"><i class="fa fa-spinner fa-pulse fa-3x fa-fw margin-bottom"></i></h1>              		
+                		<h1 class="text-info text-center"><i class="fa fa-spinner fa-pulse fa-3x fa-fw margin-bottom"></i></h1>
                 	</div>
                 </div>
             </div>
-            
+
             <!-- GEOPROCESOS -->
             <div class="sidebar-pane fulleable" id="geoprocesses">
-                
+
 								<h1 class="sidebar-header" >
 									<a href="#tool-geoprocess" aria-controls="tool-geoprocess" data-toggle="tab" class="active">
                  		<span class="bg-primary">Geoprocesos</span>
@@ -188,11 +186,11 @@ Usar librerias de github:
                 		<div id="tool-geoprocess-history" role="tabpanel" class="fade tab-pane">Mostrar aqui el historial</div>
                 	</div>
                 </div>
-            </div>            
+            </div>
             <div class="sidebar-pane" id="messages">
                 <h1 class="sidebar-header">Messages<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
             </div>
-
+            <!-- CONFIGURACION DE USUARIO-->
             <div class="sidebar-pane" id="settings">
                 <h1 class="sidebar-header">Settings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
                 <div class="sidebar-body">
@@ -208,30 +206,22 @@ Usar librerias de github:
     <a href="https://github.com/Turbo87/sidebar-v2/"><img style="position: fixed; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 		-->
     <script src="sidebar-v2/ol3-sidebar.min.js"></script>
-  
 
+ <script>
 
- <script>      
-       
         var map = new ol.Map({
             target: 'map',
             renderer: ["canvas", "dom"],
-            layers: [
-            /*
-                new ol.layer.Tile({
-                    source: new ol.source.OSM()
-                })
-                */
-            ],
+            layers: [],
             loadTilesWhileInteracting: true,
             view: new ol.View({
                 center: ol.proj.transform([-61.3, -16.80], 'EPSG:4326', 'EPSG:3857'), //+/- en SCZ
                 zoom: 8
             })
         });
-    
+
         var sidebar = new ol.control.Sidebar({ element: 'sidebar', position: 'left' });
-        
+
         sidebar.open = function(id){
         	//console.log(id);
         	ol.control.Sidebar.prototype.open.call(this,id);
@@ -239,8 +229,8 @@ Usar librerias de github:
         		var F= new Function ('el', $('#' + id).attr('onopen'));
         		F($('#' + id)[0]);
         	}
-        	var btnxpd = document.getElementById(id).querySelector('.btn-expand');
-        	if(btnxpd) btnxpd.classList.add('active');
+        	var btnFullScreen = document.getElementById(id).querySelector('.btn-expand');
+        	if(btnFullScreen) btnFullScreen.classList.add('active');
         }
         sidebar.close = function(){
         	var btnxpd = this.element.querySelector('.modal-content .active');
@@ -255,7 +245,7 @@ Usar librerias de github:
         map.addControl(sidebar);
 
 		var switcher = new ol.control.LayerSwitcher(
-		{	target:$(".layerSwitcher").get(0), 
+		{	target:$(".layerSwitcher").get(0),
 			show_progress:true,
 			extent: true,
 			trash: true,
@@ -277,43 +267,43 @@ Usar librerias de github:
           	map.addGeojsonLayer({id: 'testjson', geojson : data, title : 'Test JSON'});
           					document.getElementById('tool-geoprocess-result').innerHTML = tmpl('tmpl-attribute-table', {id: 'testjson'});
 										$('a[href="#geoprocesses"]').trigger('click').delay(3500);
-										$('a[href="#tool-geoprocess-result"]').show().trigger('click');	
+										$('a[href="#tool-geoprocess-result"]').show().trigger('click');
           }
       });
-	})(); 	
+	})();
 </script>
 
 
 <!--	Pantilla para mostrar la tabla de atributos -->
 <script id="tmpl-attribute-table" type="text/x-tmpl">
-{% 
+{%
 	var _lyr = map.getLayer(o.id);
-	var _features = (o.geojson?o.geojson.features:undefined) || _lyr.getSource().getFeatures();	
+	var _features = (o.geojson?o.geojson.features:undefined) || _lyr.getSource().getFeatures();
 
-  if (_features.length > 0) { 
+  if (_features.length > 0) {
 %}
 		<h5><i class="pull-left fa fa-table" aria-hidden="true"></i><span style="word-break: break-all;">{%=_lyr.getProperties().title%}</span></h5>
 		<div class="table-responsive">
 			<table class="small table table-condensed table-bordered table-striped">
 				<thead class="text-uppercase bg-primary">
-	  			<tr>	   
+	  			<tr>
 {%
 		var props = _features[0].properties || _features[0].getProperties();
 %}
 						<th>sicob ID</th>
 {%
     for (var key in props) {
-    	if (key != 'sicob_id' && key != 'info_title' && (props[key] == null || typeof props[key] !== 'object') ){ 
+    	if (key != 'sicob_id' && key != 'info_title' && (props[key] == null || typeof props[key] !== 'object') ){
 %}
 			  		<th>{%=key%}</th>
-{%	
+{%
     	}
-  	} 
+  	}
 %}
    				</tr>
 	 			</thead>
 				<tbody>
-{% 
+{%
 		for (var i in _features) {
 %}
 					<tr>
@@ -323,7 +313,7 @@ Usar librerias de github:
 						<td>{%=props.sicob_id%}</td>
 {%
 			for (var key in props) {
-    		if (key != 'sicob_id' && key != 'info_title' && (props[key] == null || typeof props[key] !== 'object') ){ 
+    		if (key != 'sicob_id' && key != 'info_title' && (props[key] == null || typeof props[key] !== 'object') ){
 %}
 	 	 				<td>{%=props[key]%}</td>
 {%
@@ -333,8 +323,8 @@ Usar librerias de github:
 					</tr>
 {%
 		}
-%} 	 	
-	 			</tbody> 
+%}
+	 			</tbody>
 			</table>
 		</div>
 {%
@@ -346,8 +336,8 @@ Usar librerias de github:
 </html>
 
 <script type="text/javascript">
-var GEOSICOB_URL = 'http://192.168.50.9:8084/gsadmin2/'; 
-//var GEOSICOB_URL = 'http://localhost/abt/'; 
+var GEOSICOB_URL = 'http://192.168.50.9:8084/gsadmin2/';
+//var GEOSICOB_URL = 'http://localhost/abt/';
 var GEOSICOB_KEY = '';
 
 //<!-- FUNCIONES GENERALES (UTILITARIOS) -->
@@ -355,9 +345,9 @@ var GEOSICOB_KEY = '';
 //<!-- Funciones Openlayers -->
   <!-- inject:geoutils -->
 	<!-- endinject -->
-	
-//muestra un mensaje que se desvanece automáticamente.
-function showAlertMsg(op){ 
+
+//muestra un mensaje que se desvanece automï¿½ticamente.
+function showAlertMsg(op){
 		if(!op.hasOwnProperty('delay')) op.delay = 3500;
 		$(op.container).stop().empty().fadeIn();
 		$('<div class="collapse alert ' + op.typemsg + '" role="alert" style="margin:0px;"/>').html(op.msg).appendTo(op.container).fadeIn();
@@ -366,11 +356,11 @@ function showAlertMsg(op){
 
 //++++++++++++++++++++++++++++++++
 //Formatea numeros con la cantidad de digitos indicada en max, ej.: 01(2 digitos), 001(3 digitos)
-//++++++++++++++++++++++++++++++++   
+//++++++++++++++++++++++++++++++++
 function pad (str, max) {
  	str = str.toString();
  	return str.length < max ? pad("0" + str, max) : str;
-}	
+}
 //devuelve los campos de un formulario en formato json.
 (function ($) {
     $.fn.serializeFormJSON = function () {
@@ -394,7 +384,7 @@ function pad (str, max) {
 //Sidebar enhanced
 	$('.sidebar-header a').on('click',function(){ $(this).closest('.sidebar-header').find('a').removeClass('btn-info'); $(this).addClass('btn-info'); });
   $('.sidebar-pane.fulleable').each(function(){
-  	var $p = $(this); 
+  	var $p = $(this);
   	var $btnExpand = $('<span class="btn text-info btn-xs btn-expand" style="position: absolute;bottom: 5px;right: 20px;z-index: 10;"/>')
   	.html('<i class=" fa fa-expand" aria-hidden="true"></i>')
   	.on('click',function(){
@@ -403,12 +393,12 @@ function pad (str, max) {
   	})
   	.appendTo($p);
   });
-  
+
 function showLayerList(){
  	$('.btn-expand.active,.sidebar-close:visible').trigger('click');
- 	setTimeout(function(){$('a[href="#layers"]').trigger('click');}, 1000)     	
-}	
-  
+ 	setTimeout(function(){$('a[href="#layers"]').trigger('click');}, 1000)
+}
+
 function addSHP(data){
 	//console.log(data);
 	var json = JSON.parse(data);
@@ -423,7 +413,7 @@ function addSHP(data){
 	<!-- endinject -->
 <script>
 	var jsonLayers = null;
-	
+
 	(function () {
       $.ajax({
           'global': false,
@@ -435,8 +425,8 @@ function addSHP(data){
               document.getElementById('lyr_goo').click();
           }
       });
-	})(); 	
-</script>  
+	})();
+</script>
 <!-- Landsat8 -->
   <!-- inject:landsat8:html -->
 	<!-- endinject -->
@@ -465,7 +455,7 @@ function addSHP(data){
 
           }
       });
-	})(); 	
+	})();
 </script>
 <!-- Formulario para cargar shapefile -->
 	<!-- inject:uploadfrm:all --><!-- endinject -->
