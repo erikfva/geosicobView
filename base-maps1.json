@@ -13,12 +13,11 @@
 				"url" : "http://localhost/msrv",
 				"params"	:	{
 					"MAP":"/mapserver/mapfiles/base/base.map",
-					"LAYERS":"LIMITE MUNICIPAL,CAPITAL MUNICIPAL,PUEBLO,CAMINO PRINCIPAL,CAMINO SECUNDARIO,HIDROGRAFIA,LAGUNAS",
+					"LAYERS":"CAPITAL MUNICIPAL,CAMINO PRINCIPAL,CAMINO SECUNDARIO,LIMITE MUNICIPAL,HIDROGRAFIA,PUEBLO",
 					"TILED":"true",
 					"STYLES":""
 				},
-				"maxZoom"	: "19",
-				"gutter": "10"
+				"maxZoom"	: "19"
 			}
 		},
 		{

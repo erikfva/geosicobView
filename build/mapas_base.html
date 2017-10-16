@@ -252,6 +252,11 @@
         			});
 							lyr_info.loaded = true;
         			break;
+        		case 'MapServer':
+        			opTile = lyr_info.lyr_options;
+        			lyr_info.lyr_source.serverType = 'mapserver';
+        			opTile.source = new ol.source.TileWMS(lyr_info.lyr_source);
+        			break;
         	}
 
         	if(!(opTile == null)){

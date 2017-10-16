@@ -1,6 +1,6 @@
 function showFrmProcess(o){
 	$('.sidebar-close:visible').trigger('click'); //cerrando el menu lateral
-		
+
 	var frm = $('#dlg-frmgeoprocess');
 	if(frm.length){
 		frm.find('.modal-title').html(o.title).end().find('.modal-body').empty().append(tmpl(o.templates.input,o));
@@ -10,16 +10,16 @@ function showFrmProcess(o){
 	frm.find('.msg-board').hide();
 	frm.modal('show');
 }
-	
+
 function runGeoprocess(gp){
 
 	if(gp.actions && gp.actions.onBeforeRun && gp.actions.onBeforeRun !== '' && typeof window[gp.actions.onBeforeRun] === 'function' && !window[gp.actions.onBeforeRun]())
 		return;
-		
+
 	var frm = $('#dlg-frmgeoprocess form');
 	var in_data = frm.serializeFormJSON();
 		var $btn = frm.find('#btnsubmit');
-		
+
 		in_data.x_proceso = gp.id;
 		in_data.opciones = 'webservice';
 		in_data.x_opcionestxt = '';
@@ -49,7 +49,7 @@ function runGeoprocess(gp){
 								if( parseInt(response.pager.RecordCount) > 0){
 
 									var out_data = JSON.parse(response.rows[0].salida) || {};
-									
+
 									if(jQuery.isEmptyObject(out_data)){ // Todavia no tiene listo el resultado.
 										showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-info", msg : "<div><i class=\"fa fa-cog fa-spin fa-fw fa-3x\"></i><span class=\"h4 pull-left\">Procesando...</span></div>", delay: 0});
 										return;
@@ -63,32 +63,35 @@ function runGeoprocess(gp){
 									//El resultado ya esta listo!!!.
 									clearInterval(refreshIntervalId);
 									$btn.button('reset');
-									showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-success", msg : "<div><i class=\"fa fa-thumbs-o-up fa-3x\"></i><span class=\"h4 pull-left\">Proceso completado.</span></div>",delay:400}); 
+									showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-success", msg : "<div><i class=\"fa fa-thumbs-o-up fa-3x\"></i><span class=\"h4 pull-left\">Proceso completado.</span></div>",delay:400});
 									if(response.rows[0].geojson)
 										out_data.lyr_geojson = response.rows[0].geojson;
-									
+
 									if(gp.actions && gp.actions.onSuccess && gp.actions.onSuccess !== '' && typeof window[gp.actions.onSuccess] === 'function')
 										if(!window[gp.actions.onSuccess](out_data)) return;
 
-									$('#dlg-frmgeoprocess .close').click();	
+									$('#dlg-frmgeoprocess .close').click();
 									if(gp.templates && gp.templates.result){
 										var htmlresult = tmpl('tmpl-geoprocess-result', {"gp": gp, "in":in_data,"out":out_data});
 										$('#tool-geoprocess-history').prepend(document.getElementById('tool-geoprocess-result').innerHTML);
-										
+
 										document.getElementById('tool-geoprocess-result').innerHTML = htmlresult;
 
 										$('#geoprocess-count').text(parseInt($('#geoprocess-count').text())+1);
 										$('a[href="#tool-geoprocess-history"]').show();
-										$('a[href="#geoprocesses"]').trigger('click').delay(3500);
-										$('a[href="#tool-geoprocess-result"]').show().trigger('click');	
-									}							
+										$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
+                      function(){
+                        $('a[href="#tool-geoprocess-result"]').show().trigger('click');
+                      }
+                    );
+									}
 								}
 							},
 							error : function(){
 								clearInterval(refreshIntervalId);
-								$btn.button('reset'); 
+								$btn.button('reset');
 							}
-						});						
+						});
 					}, 3000);
 					$('#dlg-frmgeoprocess').one('hide.bs.modal',function(){
 						clearInterval(refreshIntervalId); //cancelando el geoproceso.
@@ -105,7 +108,7 @@ function runGeoprocess(gp){
 				showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-danger", msg : textStatus, delay: 0});
 			}
 		});
-	
+
 	return false;
 }
 

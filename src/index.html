@@ -207,52 +207,53 @@ Usar librerias de github:
 		-->
     <script src="sidebar-v2/ol3-sidebar.min.js"></script>
 
- <script>
+<script>
 
-        var map = new ol.Map({
-            target: 'map',
-            renderer: ["canvas", "dom"],
-            layers: [],
-            loadTilesWhileInteracting: true,
-            view: new ol.View({
-                center: ol.proj.transform([-61.3, -16.80], 'EPSG:4326', 'EPSG:3857'), //+/- en SCZ
-                zoom: 8
-            })
-        });
+//Control principal del mapa
+var map = new ol.Map({
+    target: 'map',
+    renderer: ["canvas", "dom"],
+    layers: [],
+    loadTilesWhileInteracting: true,
+    view: new ol.View({
+        center: ol.proj.transform([-61.3, -16.80], 'EPSG:4326', 'EPSG:3857'), //+/- en SCZ
+        zoom: 8
+    })
+});
 
-        var sidebar = new ol.control.Sidebar({ element: 'sidebar', position: 'left' });
+//Control de barra de menu lateral
+var sidebar = new ol.control.Sidebar({ element: 'sidebar', position: 'left' });
+sidebar.open = function(id){
+	//console.log(id);
+	ol.control.Sidebar.prototype.open.call(this,id);
+	if($('#' + id).attr('onopen') && $('#' + id).attr('onopen') != ''){
+		var F= new Function ('el', $('#' + id).attr('onopen'));
+		F($('#' + id)[0]);
+	}
+	var btnFullScreen = document.getElementById(id).querySelector('.btn-expand');
+	if(btnFullScreen) btnFullScreen.classList.add('active');
+}
+sidebar.close = function(){
+	var btnxpd = this.element.querySelector('.modal-content .active');
+	if(btnxpd){
+		if(btnxpd.length)
+			btnxpd.forEach(function(el) {	el.classList.remove('active'); });
+		else
+			btnxpd.classList.remove('active');
+	}
+	ol.control.Sidebar.prototype.close.call(this);
+}
+map.addControl(sidebar);
 
-        sidebar.open = function(id){
-        	//console.log(id);
-        	ol.control.Sidebar.prototype.open.call(this,id);
-        	if($('#' + id).attr('onopen') && $('#' + id).attr('onopen') != ''){
-        		var F= new Function ('el', $('#' + id).attr('onopen'));
-        		F($('#' + id)[0]);
-        	}
-        	var btnFullScreen = document.getElementById(id).querySelector('.btn-expand');
-        	if(btnFullScreen) btnFullScreen.classList.add('active');
-        }
-        sidebar.close = function(){
-        	var btnxpd = this.element.querySelector('.modal-content .active');
-        	if(btnxpd){
-        		if(btnxpd.length)
-        			btnxpd.forEach(function(el) {	el.classList.remove('active'); });
-        		else
-        			btnxpd.classList.remove('active');
-        	}
-        	ol.control.Sidebar.prototype.close.call(this);
-        }
-        map.addControl(sidebar);
-
-		var switcher = new ol.control.LayerSwitcher(
-		{	target:$(".layerSwitcher").get(0),
-			show_progress:true,
-			extent: true,
-			trash: true,
-			oninfo: function (l) { alert(l.get("description")); }
-		});
-		map.addControl(switcher);
-
+//Control de listado de capas
+var switcher = new ol.control.LayerSwitcher({
+  target:$(".layerSwitcher").get(0),
+	show_progress:true,
+	extent: true,
+	trash: true,
+	oninfo: function (l) { alert(l.get("description")); }
+});
+map.addControl(switcher);
 
 </script>
 
@@ -266,8 +267,11 @@ Usar librerias de github:
           'success': function (data) {
           	map.addGeojsonLayer({id: 'testjson', geojson : data, title : 'Test JSON'});
           					document.getElementById('tool-geoprocess-result').innerHTML = tmpl('tmpl-attribute-table', {id: 'testjson'});
-										$('a[href="#geoprocesses"]').trigger('click').delay(3500);
-										$('a[href="#tool-geoprocess-result"]').show().trigger('click');
+										$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
+                      function(){
+                        $('a[href="#tool-geoprocess-result"]').show().trigger('click');
+                      }
+                    );
           }
       });
 	})();
@@ -332,9 +336,6 @@ Usar librerias de github:
 %}
 </script>
 
-</body>
-</html>
-
 <script type="text/javascript">
 var GEOSICOB_URL = 'http://192.168.50.9:8084/gsadmin2/';
 //var GEOSICOB_URL = 'http://localhost/abt/';
@@ -394,16 +395,16 @@ function pad (str, max) {
   	.appendTo($p);
   });
 
-function showLayerList(){
- 	$('.btn-expand.active,.sidebar-close:visible').trigger('click');
- 	setTimeout(function(){$('a[href="#layers"]').trigger('click');}, 1000)
+function showMenuTab(id){
+  $('.btn-expand.active,.sidebar-close:visible').trigger('click');
+ 	setTimeout(function(){$('a[href="#' + id + '"]').trigger('click');}, 1000)
 }
 
 function addSHP(data){
 	//console.log(data);
 	var json = JSON.parse(data);
 	map.addGeojsonLayer({id: json.lyr_fix_si || json.lyr_uploaded, geojson : json[json.lyr_fix_si || json.lyr_uploaded], title : json.filesource.replace(".zip", ""), type : "geosicob"});
-	showLayerList();
+	showMenuTab('layers');
 }
 
 </script>
@@ -469,3 +470,6 @@ function addSHP(data){
 <!-- login / logout -->
 	<!-- inject:login:js -->
 	<!-- endinject -->
+
+</body>
+</html>

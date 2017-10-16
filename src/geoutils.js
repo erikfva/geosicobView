@@ -1,12 +1,12 @@
 //**********************************************//
 //**Extendiendo las funciones del core OL, para buscar un layer mediante su id, ej.: map.getLayer(<lyrID>);
-if (ol.Map.prototype.getLayer === undefined) {    
+if (ol.Map.prototype.getLayer === undefined) {
 		ol.Map.prototype.getLayer = function (id) {
         var layer = null;
         this.getLayers().forEach(function (lyr) {
             if (id == lyr.get('id')) {
                 layer = lyr;
-            }            
+            }
         });
         return layer;
 		}
@@ -21,11 +21,11 @@ var geosicobStyles = {
   		color : 'blue',
   		lineCap : 'round', // extremos de la linea (butt, round, or square. Default is round).
   		lineJoin : 'round', //	junte de las lineas (bevel, round, or miter. Default is round).
-  		lineDash: [], // estilo de linea punteada (An Array of numbers which specify distances 
-  									 //	to alternately draw a line and a gap (in coordinate space units). 
-  									 // If the number of elements in the array is odd, the elements of the array 
-  									 // get copied and concatenated. 
-  									 //For example, [5, 15, 25] will become [5, 15, 25, 5, 15, 25]. 
+  		lineDash: [], // estilo de linea punteada (An Array of numbers which specify distances
+  									 //	to alternately draw a line and a gap (in coordinate space units).
+  									 // If the number of elements in the array is odd, the elements of the array
+  									 // get copied and concatenated.
+  									 //For example, [5, 15, 25] will become [5, 15, 25, 5, 15, 25].
   									 //If the array is empty, the line dash list is cleared and line strokes return to being solid.)
   		lineDashOffset : 0.0, //Desplazamiento en relacion al maraco para empezar a dibujar la linea.
   		miterLimit : 10,
@@ -64,10 +64,10 @@ var geosicobStyles = {
   	}
   }
 };
-//** Retorna o asigna el estilo de un layer 
+//** Retorna o asigna el estilo de un layer
 if (ol.layer.Layer.prototype.geosicobStyle === undefined){
     ol.layer.Layer.prototype.geosicobStyle = function(geosicobStyle){
-    	if (!arguments.length) return this.getProperties().geosicobStyle; 
+    	if (!arguments.length) return this.getProperties().geosicobStyle;
     	//console.log(this.getProperties().geosicobStyle);
     	jQuery.extend(true,this.getProperties().geosicobStyle,geosicobStyle);
     	//Object.assign(this.getProperties().geosicobStyle,geosicobStyle);
@@ -79,7 +79,7 @@ var getText = function(feature, resolution, geosicobStyle) {
   var type = geosicobStyle.text.type;
   var maxResolution = geosicobStyle.text.maxresol;
   var text = '' + feature.get(geosicobStyle.text.field);
-  
+
   if (resolution > maxResolution) {
     text = '';
   } else if (type == 'hide') {
@@ -89,10 +89,10 @@ var getText = function(feature, resolution, geosicobStyle) {
   } else if (type == 'wrap') {
     text = stringDivider(text, 16, '\n');
   }
-  
+
   return text;
-};	
-//** Prepara la etiqueta	
+};
+//** Prepara la etiqueta
 var createTextStyle = function(feature, resolution, geosicobStyle) {
   var align = geosicobStyle.text.align;
   var baseline = geosicobStyle.text.baseline;
@@ -105,7 +105,7 @@ var createTextStyle = function(feature, resolution, geosicobStyle) {
   var fillColor = geosicobStyle.text.color;
   var outlineColor = geosicobStyle.text.outlineColor;
   var outlineWidth = parseInt( geosicobStyle.text.outlineWidth, 10);
-  
+
   return new ol.style.Text({
     textAlign: align,
     textBaseline: baseline,
@@ -123,7 +123,7 @@ var createBorderStyle = function(feature, resolution, geosicobStyle) {
 	var data = geosicobStyle.border;
 	data.lineDashOffset= parseFloat(geosicobStyle.border.lineDashOffset);
 	data.miterLimit= parseInt(geosicobStyle.border.miterLimit, 10);
-	data.width= parseInt(geosicobStyle.border.width); 
+	data.width= parseInt(geosicobStyle.border.width);
   return new ol.style.Stroke(data);
 };
 //** Prepara el fondo
@@ -145,29 +145,35 @@ function geosicobStylesFunction(feature, resolution, geosicobStyle) {
 }
 
 //**********************************************//
-//** Agrega una capa vectorial a partir de un geoJSON. El parametro de entrada es un json con los sgtes atributos:		
-//	id (alfanumerico): Identificador unico para la nueva capa.	
+//** Agrega una capa vectorial a partir de un geoJSON. El parametro de entrada es un json con los sgtes atributos:
+//	id (alfanumerico): Identificador unico para la nueva capa.
 //	title (opcional) : Titulo para la nueva capa.
 //	type (opcional) : Valor para clasificar la capa, util para procesos posteriores.
 //										Ej.: Para las capas cargadas del geoSICOB se asiga automaticamente el valor de 'geosicob'.
-//	geojson (texto/JSON): Contenido en formato geoJSON de la capa, el formato puede ser en texto plano o en JSON. 
-if (ol.Map.prototype.addGeojsonLayer === undefined) {    
+//	geojson (texto/JSON): Contenido en formato geoJSON de la capa, el formato puede ser en texto plano o en JSON.
+if (ol.Map.prototype.addGeojsonLayer === undefined) {
 		ol.Map.prototype.addGeojsonLayer = function addGeojsonLayer(o){
 		if (!!this.getLayer(o.id)){
 			//console.log('ya esta cargado', g.id);
 			return;
 		}
+
+		if(typeof o.geojson == 'string'){
+			o.geojson = o.geojson.replace(/\\"/g,'\\"');
+		}
+		console.log(o.geojson)
+
 		var vectorSource = new ol.source.Vector({
 			features: (new ol.format.GeoJSON({
          projection: 'EPSG:4326',
          featureProjection: 'EPSG:3857'
 			})).readFeatures(typeof o.geojson !== 'object'? JSON.parse(o.geojson):o.geojson)
-		});	
-		 
+		});
+
     function applyStylesFunction(feature, resolution) {
     	return geosicobStylesFunction(feature, resolution, vectorLayer.geosicobStyle())
 		}
-		
+
     var opVectorLayer = jQuery.extend (
     	true,
     	JSON.parse(JSON.stringify(o)),
@@ -181,20 +187,20 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
 				style: applyStylesFunction,
 				source: vectorSource
 			}
-		);		
-		var vectorLayer = new ol.layer.Vector(opVectorLayer);	
-    this.addLayer(vectorLayer);  
+		);
+		var vectorLayer = new ol.layer.Vector(opVectorLayer);
+    this.addLayer(vectorLayer);
     var extent = vectorSource.getExtent();
     //console.log(extent);
     vectorLayer.setExtent(extent);
-    this.getView().fit(extent, this.getSize());	
+    this.getView().fit(extent, this.getSize());
     return vectorLayer;
 	}
 }
 //**********************************************//
 // Carga una capa geoJSON desde el servidor del geoSICOB.
 // Importante!!! declar antes la variable global "GEOSICOB_URL", ej.: window.GEOSICOB_URL = 'http://fon-l11/abt/';
-//El parametro de entrada es un json con los sgtes. atributos:	
+//El parametro de entrada es un json con los sgtes. atributos:
 // lyrs : Array de json {id:<identificacion de la capa>, title:<Etiqueta para mostrar en el listado de capas>}, ej.: {id:"temp.f20170525efgcbad82cc4435_pred",title:"Predios encontrados"}.
 // success (opcional): funcion de callbak (en caso de exito) a la que se le envia como parametro "response".
 // fail (opcional ): funcion de callbak (en caso de error) a la que se le envia como parametro "jqXHR".
@@ -203,7 +209,7 @@ function loadGeojson(o){
 	o.lyrs.forEach(function(item, i){
 		lyrs += (lyrs===''?'':',')+item.id;
 	});
-	
+
 	if(lyrs && lyrs !== ''){
 		$.ajax({
 			url: GEOSICOB_URL + 'geojsonlist.php',
@@ -212,16 +218,16 @@ function loadGeojson(o){
 			success:function(response) {
 				//console.log(response);
 				if(typeof response.rows === 'undefined'){
-					
+
 				}
 				response.rows.forEach(function(item, i){
-					
+
 					var lyr = o.lyrs.find(function(el){return el.id === item.lyr_name });
 					map.addGeojsonLayer({
-						id: item.lyr_name, 
-						geojson : item.geojson, 
-						title : lyr.title || ('Capa: ' + item.lyr_name), 
-						type : "geosicob", 
+						id: item.lyr_name,
+						geojson : item.geojson,
+						title : lyr.title || ('Capa: ' + item.lyr_name),
+						type : "geosicob",
 						geosicobStyle : lyr.geosicobStyle || {},
 						process: item.process || ""
 					});
@@ -239,4 +245,3 @@ function loadGeojson(o){
 		});
 	}
 }
-
