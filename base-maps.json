@@ -1,30 +1,9 @@
 {
 	"layers" : [
 		{
-			"id" : "lyr_base_scz",
-			"mapthumbs" : "https://erikfva.github.io/geosicobView/images/mapthumbs/osm.jpg",
-			"description" : "Mapa Base de Santa Cruz - Bolivia.",
-			"lyr_options" : {
-				"title" : "Santa Cruz - Bolivia",
-				"preload"	: "Infinity"
-			},
-			"lyr_source" : {
-				"type"	:	"MapServer",
-				"url" : "http://localhost/msrv",
-				"params"	:	{
-					"MAP":"/mapserver/mapfiles/base/base.map",
-					"LAYERS":"LIMITE MUNICIPAL,CAPITAL MUNICIPAL,PUEBLO,CAMINO PRINCIPAL,CAMINO SECUNDARIO,HIDROGRAFIA,LAGUNAS",
-					"TILED":"true",
-					"STYLES":""
-				},
-				"maxZoom"	: "19",
-				"gutter": "10"
-			}
-		},
-		{
 			"id" : "lyr_sentinel",
-			"mapthumbs" : "https://erikfva.github.io/geosicobView/images/mapthumbs/aerial.jpg",	
-			"description" : "Los Sentinel son una nueva flota de sat&eacute;lites dise&ntilde;ada espec&iacute;ficamente para proporcionar los abundantes datos e im&aacute;genes de que se nutre el programa Copernicus, de la Comisi&oacute;n Europea.",		
+			"mapthumbs" : "https://erikfva.github.io/geosicobView/images/mapthumbs/aerial.jpg",
+			"description" : "Los Sentinel son una nueva flota de sat&eacute;lites dise&ntilde;ada espec&iacute;ficamente para proporcionar los abundantes datos e im&aacute;genes de que se nutre el programa Copernicus, de la Comisi&oacute;n Europea.",
 			"lyr_options" : {
 				"title" : "Sentinel 2",
 				"preload"	: "Infinity"
@@ -47,8 +26,8 @@
 		},
 		{
 			"id" : "lyr_bingmap",
-			"mapthumbs" : "https://erikfva.github.io/geosicobView/images/mapthumbs/bingmaps.jpg",	
-			"description" : "Imagen de Bing Maps.",	
+			"mapthumbs" : "https://erikfva.github.io/geosicobView/images/mapthumbs/bingmaps.jpg",
+			"description" : "Imagen de Bing Maps.",
 			"onSelectFnName" : "onSelectBingMaps",
 			"lyr_options" : {
 				"title" : "Bing Maps",
@@ -58,10 +37,10 @@
 				"type"	:	"BingMaps",
 				"key"		: "AlzgeOkUQhBfFhpjKogy4CXZd9Y3aAFYSpUHfRpaAYmgn4I0nmN0G64bJWwanmGe",
 				"imagerySet"	:	"Aerial",
-				"maxZoom"	: "19"				
+				"maxZoom"	: "19"
 			},
 			"template" : "tmpl-bingmaps"
-		}, 
+		},
 		{
 			"id" : "lyr_osm",
 			"mapthumbs" : "https://erikfva.github.io/geosicobView/images/mapthumbs/osm.jpg",
@@ -86,9 +65,9 @@
 			"lyr_source" : {
 				"type"	:	"GOOGLE",
 				"url"		:	"https://mt.google.com/vt/x={x}&y={y}&z={z}",
-				"attribution" : "© Google, Inc"
+				"attribution" : "ï¿½ Google, Inc"
 			},
-			"template" : "tmpl-goo"			
+			"template" : "tmpl-goo"
 		},
 		{
 			"id" : "lyr_dg",
@@ -101,8 +80,29 @@
 			"lyr_source" : {
 				"type"	:	"XYZ",
 				"url"		:	"https://{a-d}.tiles.mapbox.com/v4/digitalglobe.nal0g75k/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNpaHhtenBmZjAzYW11a2tvY2p3MnpjcGcifQ.vF1gH0mGgK31yeHC1k1Tqw",
-				"attribution" : "© DigitalGlobe, Inc"
+				"attribution" : "ï¿½ DigitalGlobe, Inc"
 			}
-		}		
+		},
+		{
+			"id" : "lyr_base_scz",
+			"mapthumbs" : "https://erikfva.github.io/geosicobView/images/mapthumbs/osm.jpg",
+			"description" : "Mapa Base de Santa Cruz - Bolivia. (no disponible)",
+			"lyr_options" : {
+				"title" : "Santa Cruz - Bolivia",
+				"preload"	: "Infinity"
+			},
+			"lyr_source" : {
+				"type"	:	"MapServer",
+				"url" : "http://localhost/msrv",
+				"params"	:	{
+					"MAP":"/mapserver/mapfiles/base/base.map",
+					"LAYERS":"LIMITE MUNICIPAL,CAPITAL MUNICIPAL,PUEBLO,CAMINO PRINCIPAL,CAMINO SECUNDARIO,HIDROGRAFIA,LAGUNAS",
+					"TILED":"true",
+					"STYLES":""
+				},
+				"maxZoom"	: "19",
+				"gutter": "10"
+			}
+		}
 	]
 }
