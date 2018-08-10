@@ -192,8 +192,9 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
     this.addLayer(vectorLayer);
     var extent = vectorSource.getExtent();
     //console.log(extent);
-    vectorLayer.setExtent(extent);
-    this.getView().fit(extent, this.getSize());
+		vectorLayer.setExtent(extent);
+		if(!isNaN(this.getSize()[0]))
+    	this.getView().fit(extent, this.getSize());
     return vectorLayer;
 	}
 }

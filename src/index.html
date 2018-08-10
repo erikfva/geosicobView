@@ -208,6 +208,18 @@ Usar librerias de github:
     <script src="sidebar-v2/ol3-sidebar.min.js"></script>
 
 <script>
+//FIX: FF
+if (/firefox/i.test(navigator.userAgent)){
+   window.oldGetComputedStyle = window .getComputedStyle;
+   window.getComputedStyle = function (element, pseudoElt) {
+      var t = window.oldGetComputedStyle(element, pseudoElt)
+      if (t === null) {
+         return {}
+      } else{
+         return t
+      }
+   }
+}
 
 //Control principal del mapa
 var map = new ol.Map({
@@ -470,6 +482,18 @@ function addSHP(data){
 <!-- login / logout -->
 	<!-- inject:login:js -->
 	<!-- endinject -->
+
+	<script>
+		jQuery(document).ready(function(){
+			if (window.frameElement ){
+				var ifrm = window.frameElement
+				$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) 
+				$(top).bind('resize', function () {
+					$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) 
+				})
+			}	
+		})
+	</script>
 
 </body>
 </html>
