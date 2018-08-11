@@ -1,5 +1,5 @@
 node_modules/
-build/
+#build/
 index.html
 package-lock.json
 ol4/
