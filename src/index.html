@@ -210,16 +210,22 @@ Usar librerias de github:
 <script>
 //FIX: FF
 if (/firefox/i.test(navigator.userAgent)){
-   window.oldGetComputedStyle = window .getComputedStyle;
-   window.getComputedStyle = function (element, pseudoElt) {
-      var t = window.oldGetComputedStyle(element, pseudoElt)
-      if (t === null) {
-         return {}
-      } else{
-         return t
-      }
-   }
-}
+	
+	window.oldGetComputedStyle = window.getComputedStyle;
+	window.getComputedStyle = function (element, pseudoElt) {
+	   var t = window.oldGetComputedStyle(element, pseudoElt)
+	   if (t === null) {
+		 return {
+					 getPropertyValue : function(prop){
+						 return ''
+					 }
+				 }
+	   } else{
+		  return t
+	   }
+	  }
+	  
+ }
 
 //Control principal del mapa
 var map = new ol.Map({

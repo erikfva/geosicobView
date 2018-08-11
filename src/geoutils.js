@@ -194,7 +194,18 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
     //console.log(extent);
 		vectorLayer.setExtent(extent);
 		if(!isNaN(this.getSize()[0]))
-    	this.getView().fit(extent, this.getSize());
+			this.getView().fit(extent, this.getSize());
+		
+		var infoContainer = document.getElementById('tool-geoprocess-result');
+		if(infoContainer){
+			infoContainer.innerHTML = tmpl('tmpl-attribute-table', {id: o.id});
+			$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
+        function(){
+          $('a[href="#tool-geoprocess-result"]').removeClass('collapse').trigger('click');
+        }
+      );
+		} 
+		
     return vectorLayer;
 	}
 }

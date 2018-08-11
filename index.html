@@ -237,16 +237,22 @@ Usar librerias de github:
 <script>
 //FIX: FF
 if (/firefox/i.test(navigator.userAgent)){
-   window.oldGetComputedStyle = window .getComputedStyle;
-   window.getComputedStyle = function (element, pseudoElt) {
-      var t = window.oldGetComputedStyle(element, pseudoElt)
-      if (t === null) {
-         return {}
-      } else{
-         return t
-      }
-   }
-}
+	
+	window.oldGetComputedStyle = window.getComputedStyle;
+	window.getComputedStyle = function (element, pseudoElt) {
+	   var t = window.oldGetComputedStyle(element, pseudoElt)
+	   if (t === null) {
+		 return {
+					 getPropertyValue : function(prop){
+						 return ''
+					 }
+				 }
+	   } else{
+		  return t
+	   }
+	  }
+	  
+ }
 
 //Control principal del mapa
 var map = new ol.Map({
@@ -306,11 +312,13 @@ map.addControl(switcher);
           'success': function (data) {
           	map.addGeojsonLayer({id: 'testjson', geojson : data, title : 'Test JSON'});
           					document.getElementById('tool-geoprocess-result').innerHTML = tmpl('tmpl-attribute-table', {id: 'testjson'});
+										/*
 										$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
                       function(){
                         $('a[href="#tool-geoprocess-result"]').show().trigger('click');
                       }
-                    );
+										);
+										*/
           }
       });
 	})();
@@ -579,7 +587,18 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
     //console.log(extent);
 		vectorLayer.setExtent(extent);
 		if(!isNaN(this.getSize()[0]))
-    	this.getView().fit(extent, this.getSize());
+			this.getView().fit(extent, this.getSize());
+		
+		var infoContainer = document.getElementById('tool-geoprocess-result');
+		if(infoContainer){
+			infoContainer.innerHTML = tmpl('tmpl-attribute-table', {id: o.id});
+			$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
+        function(){
+          $('a[href="#tool-geoprocess-result"]').removeClass('collapse').trigger('click');
+        }
+      );
+		} 
+		
     return vectorLayer;
 	}
 }
