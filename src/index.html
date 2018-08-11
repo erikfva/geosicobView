@@ -486,10 +486,10 @@ function addSHP(data){
 	<script>
 		jQuery(document).ready(function(){
 			if (window.frameElement ){
-				var ifrm = window.frameElement
-				$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) 
+				var ifrm = window.frameElement;
+				$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) ;
 				$(top).bind('resize', function () {
-					$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) 
+					$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) ;
 				})
 			}	
 		})
