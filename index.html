@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>geoSICOB View</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="ol4/ol.css" type="text/css">
+  <link rel="stylesheet" href="sidebar-v2/ol3-sidebar.min.css" />
+<!--
+Usar librerias de github:
+1.- Find your link on GitHub, and click to the "Raw" version of the file.
+2.- Copy the URL, and link to it.
+3.- Change raw.githubusercontent.com to rawgit.com (non-production) or cdn.rawgit.com (production)
+-->
+	<link rel="stylesheet" href="https://rawgit.com/erikfva/ol3-ext/gh-pages/control/layerswitchercontrol.css" />
+
+<style>
+        body {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+        html, body, #map {
+            height: 100%;
+            font: 10pt "Helvetica Neue", Arial, Helvetica, sans-serif;
+        }
+        .shadow-b{
+        	-webkit-box-shadow: 0px 10px 21px 0px rgba(50, 50, 50, 0.41);
+        	-moz-box-shadow:    0px 10px 21px 0px rgba(50, 50, 50, 0.41);
+        	box-shadow:         0px 10px 21px 0px rgba(50, 50, 50, 0.41);
+        }
+
+    .sidebar-pane{position: relative;width: 100%;height: 100%;overflow-y: hidden;padding:0px;padding-bottom:40px}
+		.sidebar-header{top:0px;position:absolute;width:100%;z-index:1;padding: 0px;margin: 0px;left: 0px;padding-left: 10px;} /*para fijar el titulo arriba.*/
+		.sidebar-body{margin-top:40px; overflow-y:auto; height:100%}
+
+    .sidebar{
+    	/*max-width:390px; */
+    	-webkit-box-sizing: content-box ;
+    	-moz-box-sizing: content-box ;
+    	box-sizing: content-box ;
+    	z-index : 1000; /* para que no se solape con ventanas modal de bootstrap*/
+    }
+
+		@media (min-width: 10px) and (max-width: 768px) {
+    	.sidebar {
+      	max-width: 350px;
+      }
+    }
+		.sidebar-pane.full-screen{
+			position: fixed;
+			top:0px;
+			left:0px;
+			width:100%;
+			height:100%;
+			background: #FFF;
+		}
+		.full-screen .sidebar-close{display:none}
+
+	.ol-layerswitcher .panel li label{
+		overflow : inherit;
+		white-space: inherit;
+		max-width : inherit;
+		word-break: break-all;
+	}
+
+</style>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<script src="https://cdn.rawgit.com/blueimp/JavaScript-Templates/master/js/tmpl.min.js"></script>
+  <script src="ol4/ol-debug.js" type="text/javascript"></script>
+	<!-- Control LayerSwitcher -->
+	<script  src="https://rawgit.com/erikfva/ol3-ext/gh-pages/control/layerswitchercontrol.js"></script>
+
+</head>
+<body>
+    <div id="sidebar" class="sidebar collapsed">
+        <!-- Nav tabs -->
+        <div class="sidebar-tabs">
+            <ul role="tablist">
+                <li><a href="#layers" role="tab"><i class="fa fa-bars"></i></a></li>
+                <li>
+                	<a href="#maps" role="tab">
+                	<span class="fa-stack">
+                		<i class="fa fa-map-o fa-stack-1x"></i>
+                		<sup class="fa fa-map-marker fa-stack-1x"></sup>
+                	</span>
+                	</a>
+                </li>
+                <li><a href="#search" role="tab"><i class="fa fa-search"></i></a></li>
+                <li>
+                	<a href="#geoprocesses" role="tab">
+                		<span class="fa-stack">
+                			<i class="fa fa-square-o fa-stack-2x"></i>
+                			<i class="fa fa-bolt fa-stack-1x"></i>
+                		</span>
+                	</a>
+                </li>
+                <li class="disabled"><a href="#messages" role="tab"><i class="fa fa-envelope"></i></a></li>
+                <li><a href="javascript:$('.sidebar-close:visible').trigger('click'); uploadSHP( function(r){ addSHP(r); } );"><i class="fa fa-upload" aria-hidden="true"></i></a></li>
+                <li>
+                	<a href="javascript:showFrmProcess(geoprocess.process[0]);">
+                		<span class="fa-stack">
+                			<sub class="fa fa-cogs fa-stack-1x"></sub>
+                			<sup class="small fa fa-wrench fa-stack-1x" style="margin-top: -3px;"></sup>
+                		</span>
+                	</a>
+                </li>
+            </ul>
+
+            <ul role="tablist">
+                <li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
+            </ul>
+        </div>
+
+        <!-- Tab panels -->
+        <div class="sidebar-content modal-content">
+            <!-- MAPAS BASE -->
+            <div class="sidebar-pane" id="maps">
+                 <h1 class="sidebar-header" >
+                    Mapa base
+                    <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <div class="sidebar-body panel-body">
+                	<div id="tool-mapa-base"></div>
+                </div>
+            </div>
+
+            <!-- CAPAS -->
+            <div class="sidebar-pane" id="layers">
+                <h1 class="sidebar-header">Capas<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+                <div class="sidebar-body panel-body">
+                	<div class="layerSwitcher"></div>
+                </div>
+            </div>
+
+            <!-- LANDSAT 8 -->
+            <div class="sidebar-pane" id="search" style="padding-bottom:200px" onopen="setTimeout(function(){ overviewMapControl.setCollapsed(true);  $('#overviewsearch button').click() }, 100); searchLandsat();">
+                <h1  class="sidebar-header">Landsat 8
+                	<span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                	<div class="btn-group" role="group" aria-label="...">
+                		<button class="btn btn-xs btn-info btn-update hide" onclick="searchLandsat()">Mostrar resultado</button>
+                	</div>
+                </h1>
+                <div class="sidebar-body panel-body" style="margin-top:200px">
+                	<div id="overviewsearch" style="width:100%;"></div>
+
+                	<div class="hide alert alert-danger need-zoom">Necesita acercarse mas (haga zoom sobre el mapa).</div>
+                	<div id="search-result">
+                		<h1 class="text-info text-center"><i class="fa fa-spinner fa-pulse fa-3x fa-fw margin-bottom"></i></h1>
+                	</div>
+                </div>
+            </div>
+
+            <!-- GEOPROCESOS -->
+            <div class="sidebar-pane fulleable" id="geoprocesses">
+
+								<h1 class="sidebar-header" >
+									<a href="#tool-geoprocess" aria-controls="tool-geoprocess" data-toggle="tab" class="active">
+                 		<span class="bg-primary">Geoprocesos</span>
+                 	</a>
+                 	<div class="btn-toolbar pull-right" role="toolbar">
+                    	<div class="btn-group">
+                    		<a href="#tool-geoprocess-result" data-toggle="tab" class="collapse pull-left fa-stack text-info">
+                    			<i class="fa fa-square-o fa-stack-2x fa-inverse"></i>
+                    			<i class="fa fa-bolt fa-stack-1x fa-inverse"></i>
+                    		</a>
+                    		<a href="#tool-geoprocess-history" data-toggle="tab" class="collapse pull-left fa-stack btn-primary">
+                    			<i class="fa fa-clock-o fa-stack-2x"></i>
+                    			<sub id="geoprocess-count" class="btn-warning shadow-b btn-xs h3 pull-right">0</sub>
+                    		</a>
+                    	</div>
+                    	<span class="btn-lg">&nbsp;</span>
+                  </div>
+                  <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+
+                <div class="panel-body sidebar-body">
+                	<div class="tab-content">
+                		<div id="tool-geoprocess" role="tabpanel" class="tab-pane fade in active" ></div>
+                		<div id="tool-geoprocess-result" role="tabpanel" class="fade tab-pane">Mostrar aqui los resultados</div>
+                		<div id="tool-geoprocess-history" role="tabpanel" class="fade tab-pane">Mostrar aqui el historial</div>
+                	</div>
+                </div>
+            </div>
+            <div class="sidebar-pane" id="messages">
+                <h1 class="sidebar-header">Messages<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+            </div>
+            <!-- CONFIGURACION DE USUARIO-->
+            <div class="sidebar-pane" id="settings">
+                <h1 class="sidebar-header">Settings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+                <div class="sidebar-body">
+  								<form name="flogin" id="flogin" class="panel-body" action="" method="post" onsubmit="return do_login();">
+  	<input type="hidden" name="token" value="">
+  	<div class="form-group">
+  		<label class="control-label" for="username">Usuario</label>
+  		<div class=""><input type="text" name="username" id="username" class="form-control" value="" placeholder="Usuario"></div>
+  	</div>
+  	<div class="form-group">
+  		<label class="control-label" for="password">Contrase&ntilde;a</label>
+  		<div class=""><input type="password" name="password" id="password" class="form-control" placeholder="Contrase&ntilde;a"></div>
+  	</div>
+  	<div class="form-group">
+  		<div class="text-center">
+  			<button name="btnsubmitlogin" type="submit" class="btn btn-primary btn-lg " id="btnsubmitlogin" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Verificando...">Ingreso al Sistema</button>
+  		</div>
+  	</div>
+  	<div class="alert alert-danger collapse msg-board" role="alert"></div>
+</form>
+<form name="flogout" id="flogout" class="panel-body collapse form-horizontal" action="" method="post" onsubmit="return do_logout();">
+  	<div class="col-xs-2">
+  		<i class="fa fa-2x fa-user-circle-o" aria-hidden="true"></i>
+  	</div>
+  	<div class="col-sm-offset-3">
+  		<span id="infoname" class="h4">Nombre de usuario</span>
+  	</div>
+  	<div class="text-right">
+  			<button name="btnsubmitlogout" type="submit" class="btn btn-primary btn-xs " id="btnsubmitlogout" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Bye bye...">Cerrar sesi&oacute;n </button>
+  	</div> 
+</form>
+  								
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="map" class="sidebar-map"></div>
+		<!--
+    <a href="https://github.com/Turbo87/sidebar-v2/"><img style="position: fixed; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+		-->
+    <script src="sidebar-v2/ol3-sidebar.min.js"></script>
+
+<script>
+
+	if (/firefox/i.test(navigator.userAgent)){
+   window.oldGetComputedStyle = window .getComputedStyle;
+   window.getComputedStyle = function (element, pseudoElt) {
+      var t = window.oldGetComputedStyle(element, pseudoElt)
+      if (t === null) {
+         return {}
+      } else{
+         return t
+      }
+   }
+	}
+
+//Control principal del mapa
+var map = new ol.Map({
+    target: 'map',
+    renderer: ["canvas", "dom"],
+    layers: [],
+    loadTilesWhileInteracting: true,
+    view: new ol.View({
+        center: ol.proj.transform([-61.3, -16.80], 'EPSG:4326', 'EPSG:3857'), //+/- en SCZ
+        zoom: 8
+    })
+});
+
+//Control de barra de menu lateral
+var sidebar = new ol.control.Sidebar({ element: 'sidebar', position: 'left' });
+sidebar.open = function(id){
+	//console.log(id);
+	ol.control.Sidebar.prototype.open.call(this,id);
+	if($('#' + id).attr('onopen') && $('#' + id).attr('onopen') != ''){
+		var F= new Function ('el', $('#' + id).attr('onopen'));
+		F($('#' + id)[0]);
+	}
+	var btnFullScreen = document.getElementById(id).querySelector('.btn-expand');
+	if(btnFullScreen) btnFullScreen.classList.add('active');
+}
+sidebar.close = function(){
+	var btnxpd = this.element.querySelector('.modal-content .active');
+	if(btnxpd){
+		if(btnxpd.length)
+			btnxpd.forEach(function(el) {	el.classList.remove('active'); });
+		else
+			btnxpd.classList.remove('active');
+	}
+	ol.control.Sidebar.prototype.close.call(this);
+}
+map.addControl(sidebar);
+
+//Control de listado de capas
+var switcher = new ol.control.LayerSwitcher({
+  target:$(".layerSwitcher").get(0),
+	show_progress:true,
+	extent: true,
+	trash: true,
+	oninfo: function (l) { alert(l.get("description")); }
+});
+map.addControl(switcher);
+
+</script>
+
+<!-- DEMO geoJSON -->
+<script type="text/javascript">
+			(function () {
+      $.ajax({
+          'global': false,
+          'url': 'https://gist.githubusercontent.com/anonymous/c0bcded232580784bb6cc79fd6c4d22b/raw/dab5dc7397a0e8a0025f7e0b4534adaafd001242/map.geojson',
+          'dataType': "json",
+          'success': function (data) {
+
+          	map.addGeojsonLayer({id: 'testjson', geojson : data, title : 'Test JSON'}); return;
+          					document.getElementById('tool-geoprocess-result').innerHTML = tmpl('tmpl-attribute-table', {id: 'testjson'});
+										$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
+                      function(){
+                        $('a[href="#tool-geoprocess-result"]').show().trigger('click');
+                      }
+                    );
+          }
+      });
+	})();
+</script>
+
+
+<!--	Pantilla para mostrar la tabla de atributos -->
+<script id="tmpl-attribute-table" type="text/x-tmpl">
+{%
+	var _lyr = map.getLayer(o.id);
+	var _features = (o.geojson?o.geojson.features:undefined) || _lyr.getSource().getFeatures();
+
+  if (_features.length > 0) {
+%}
+		<h5><i class="pull-left fa fa-table" aria-hidden="true"></i><span style="word-break: break-all;">{%=_lyr.getProperties().title%}</span></h5>
+		<div class="table-responsive">
+			<table class="small table table-condensed table-bordered table-striped">
+				<thead class="text-uppercase bg-primary">
+	  			<tr>
+{%
+		var props = _features[0].properties || _features[0].getProperties();
+%}
+						<th>sicob ID</th>
+{%
+    for (var key in props) {
+    	if (key != 'sicob_id' && key != 'info_title' && (props[key] == null || typeof props[key] !== 'object') ){
+%}
+			  		<th>{%=key%}</th>
+{%
+    	}
+  	}
+%}
+   				</tr>
+	 			</thead>
+				<tbody>
+{%
+		for (var i in _features) {
+%}
+					<tr>
+{%
+			props = _features[i].properties || _features[i].getProperties();
+%}
+						<td>{%=props.sicob_id%}</td>
+{%
+			for (var key in props) {
+    		if (key != 'sicob_id' && key != 'info_title' && (props[key] == null || typeof props[key] !== 'object') ){
+%}
+	 	 				<td>{%=props[key]%}</td>
+{%
+				}
+			}
+%}
+					</tr>
+{%
+		}
+%}
+	 			</tbody>
+			</table>
+		</div>
+{%
+	}
+%}
+</script>
+
+<script type="text/javascript">
+var GEOSICOB_URL = 'http://192.168.50.9:8084/gsadmin2/';
+//var GEOSICOB_URL = 'http://localhost/abt/';
+var GEOSICOB_KEY = '';
+
+//<!-- FUNCIONES GENERALES (UTILITARIOS) -->
+
+//<!-- Funciones Openlayers -->
+  //**********************************************//
+//**Extendiendo las funciones del core OL, para buscar un layer mediante su id, ej.: map.getLayer(<lyrID>);
+if (ol.Map.prototype.getLayer === undefined) {
+		ol.Map.prototype.getLayer = function (id) {
+        var layer = null;
+        this.getLayers().forEach(function (lyr) {
+            if (id == lyr.get('id')) {
+                layer = lyr;
+            }
+        });
+        return layer;
+		}
+}
+
+//**********************************************//
+//** FUNCIONES PARA APLICAR ESTILOS
+//**********************************************//
+var geosicobStyles = {
+  "default" : {
+  	border : { //stroke
+  		color : 'blue',
+  		lineCap : 'round', // extremos de la linea (butt, round, or square. Default is round).
+  		lineJoin : 'round', //	junte de las lineas (bevel, round, or miter. Default is round).
+  		lineDash: [], // estilo de linea punteada (An Array of numbers which specify distances
+  									 //	to alternately draw a line and a gap (in coordinate space units).
+  									 // If the number of elements in the array is odd, the elements of the array
+  									 // get copied and concatenated.
+  									 //For example, [5, 15, 25] will become [5, 15, 25, 5, 15, 25].
+  									 //If the array is empty, the line dash list is cleared and line strokes return to being solid.)
+  		lineDashOffset : 0.0, //Desplazamiento en relacion al maraco para empezar a dibujar la linea.
+  		miterLimit : 10,
+  		width: 2
+  	},
+  	fill : {
+  		color : 'rgba(0, 0, 255, 0.1)'
+  	},
+  	text : {
+  		field : 'sicob_id',
+  		type : 'normal', //hide, shorten, wrap
+  		maxresol : 1200,
+      align:'Center',
+      baseline:'Middle',
+      size:20,
+      offsetX:parseInt(0, 10),
+      offsetY:parseInt(0, 10),
+      weight:'bold',
+      rotation:parseFloat(0),
+      font: 'Arial',
+      color:'blue',
+      outlineColor:'#ffffff',
+      outlineWidth:parseInt(3, 10)
+    }
+  },
+  "titulado" : {
+  	text : {
+  		field : 'titulo',
+  		color : 'green'
+  	},
+  	fill : {
+  		color : 'green'
+  	},
+  	border : {
+  		color : 'green'
+  	}
+  }
+};
+//** Retorna o asigna el estilo de un layer
+if (ol.layer.Layer.prototype.geosicobStyle === undefined){
+    ol.layer.Layer.prototype.geosicobStyle = function(geosicobStyle){
+    	if (!arguments.length) return this.getProperties().geosicobStyle;
+    	//console.log(this.getProperties().geosicobStyle);
+    	jQuery.extend(true,this.getProperties().geosicobStyle,geosicobStyle);
+    	//Object.assign(this.getProperties().geosicobStyle,geosicobStyle);
+    }
+}
+//** Prepara el texto de la etiqueta
+var getText = function(feature, resolution, geosicobStyle) {
+  //console.log(feature);
+  var type = geosicobStyle.text.type;
+  var maxResolution = geosicobStyle.text.maxresol;
+  var text = '' + feature.get(geosicobStyle.text.field);
+
+  if (resolution > maxResolution) {
+    text = '';
+  } else if (type == 'hide') {
+    text = '';
+  } else if (type == 'shorten') {
+    text = text.trunc(12);
+  } else if (type == 'wrap') {
+    text = stringDivider(text, 16, '\n');
+  }
+
+  return text;
+};
+//** Prepara la etiqueta
+var createTextStyle = function(feature, resolution, geosicobStyle) {
+  var align = geosicobStyle.text.align;
+  var baseline = geosicobStyle.text.baseline;
+  var size = geosicobStyle.text.size;
+  var offsetX = parseInt(geosicobStyle.text.offsetX, 10);
+  var offsetY = parseInt(geosicobStyle.text.offsetY, 10);
+  var weight = geosicobStyle.text.weight;
+  var rotation = parseFloat(geosicobStyle.text.rotation);
+  var font = weight + ' ' + size + 'px ' + geosicobStyle.text.font;
+  var fillColor = geosicobStyle.text.color;
+  var outlineColor = geosicobStyle.text.outlineColor;
+  var outlineWidth = parseInt( geosicobStyle.text.outlineWidth, 10);
+
+  return new ol.style.Text({
+    textAlign: align,
+    textBaseline: baseline,
+    font: font,
+    text: getText(feature, resolution, geosicobStyle),
+    fill: new ol.style.Fill({color: fillColor}),
+    stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth}),
+    offsetX: offsetX,
+    offsetY: offsetY,
+    rotation: rotation
+  });
+};
+//** Prepara el borde
+var createBorderStyle = function(feature, resolution, geosicobStyle) {
+	var data = geosicobStyle.border;
+	data.lineDashOffset= parseFloat(geosicobStyle.border.lineDashOffset);
+	data.miterLimit= parseInt(geosicobStyle.border.miterLimit, 10);
+	data.width= parseInt(geosicobStyle.border.width);
+  return new ol.style.Stroke(data);
+};
+//** Prepara el fondo
+var createFillStyle = function(feature, resolution, geosicobStyle) {
+	var data = geosicobStyle.fill;
+	var color = ol.color.asArray(ol.color.asString(data.color));
+	color = color.slice();
+	color[3] = data.opacity || 0.1;  // change the alpha of the color
+	data.color = ol.color.asString(color);
+  return new ol.style.Fill(data);
+};
+//** Prepara el estilo = borde + fondo + etiqueta
+function geosicobStylesFunction(feature, resolution, geosicobStyle) {
+		return new ol.style.Style({
+			stroke: createBorderStyle(feature, resolution, geosicobStyle),
+			fill: createFillStyle(feature, resolution, geosicobStyle),
+			text : createTextStyle(feature, resolution, geosicobStyle)
+		})
+}
+
+//**********************************************//
+//** Agrega una capa vectorial a partir de un geoJSON. El parametro de entrada es un json con los sgtes atributos:
+//	id (alfanumerico): Identificador unico para la nueva capa.
+//	title (opcional) : Titulo para la nueva capa.
+//	type (opcional) : Valor para clasificar la capa, util para procesos posteriores.
+//										Ej.: Para las capas cargadas del geoSICOB se asiga automaticamente el valor de 'geosicob'.
+//	geojson (texto/JSON): Contenido en formato geoJSON de la capa, el formato puede ser en texto plano o en JSON.
+if (ol.Map.prototype.addGeojsonLayer === undefined) {
+		ol.Map.prototype.addGeojsonLayer = function addGeojsonLayer(o){
+		if (!!this.getLayer(o.id)){
+			//console.log('ya esta cargado', g.id);
+			return;
+		}
+
+		if(typeof o.geojson == 'string'){
+			o.geojson = o.geojson.replace(/\\"/g,'\\"');
+		}
+		console.log(o.geojson)
+
+		var vectorSource = new ol.source.Vector({
+			features: (new ol.format.GeoJSON({
+         projection: 'EPSG:4326',
+         featureProjection: 'EPSG:3857'
+			})).readFeatures(typeof o.geojson !== 'object'? JSON.parse(o.geojson):o.geojson)
+		});
+
+    function applyStylesFunction(feature, resolution) {
+    	return geosicobStylesFunction(feature, resolution, vectorLayer.geosicobStyle())
+		}
+
+    var opVectorLayer = jQuery.extend (
+    	true,
+    	JSON.parse(JSON.stringify(o)),
+    	{
+				geosicobStyle: jQuery.extend(true,JSON.parse(JSON.stringify(geosicobStyles.default)) ,o.geosicobStyle || {}),
+				id		:	o.id,
+				title : o.title || ("Capa: " + o.id),
+				type	: o.type || "undefined"
+			},
+			{
+				style: applyStylesFunction,
+				source: vectorSource
+			}
+		);
+		var vectorLayer = new ol.layer.Vector(opVectorLayer);
+    this.addLayer(vectorLayer);
+    var extent = vectorSource.getExtent();
+    //console.log(extent);
+    vectorLayer.setExtent(extent);
+		if(!isNaN(this.getSize()[0]))
+    	this.getView().fit(extent, this.getSize());
+    return vectorLayer;
+	}
+}
+//**********************************************//
+// Carga una capa geoJSON desde el servidor del geoSICOB.
+// Importante!!! declar antes la variable global "GEOSICOB_URL", ej.: window.GEOSICOB_URL = 'http://fon-l11/abt/';
+//El parametro de entrada es un json con los sgtes. atributos:
+// lyrs : Array de json {id:<identificacion de la capa>, title:<Etiqueta para mostrar en el listado de capas>}, ej.: {id:"temp.f20170525efgcbad82cc4435_pred",title:"Predios encontrados"}.
+// success (opcional): funcion de callbak (en caso de exito) a la que se le envia como parametro "response".
+// fail (opcional ): funcion de callbak (en caso de error) a la que se le envia como parametro "jqXHR".
+function loadGeojson(o){
+	var lyrs = '';
+	o.lyrs.forEach(function(item, i){
+		lyrs += (lyrs===''?'':',')+item.id;
+	});
+
+	if(lyrs && lyrs !== ''){
+		$.ajax({
+			url: GEOSICOB_URL + 'geojsonlist.php',
+			data:{"lyr_name":lyrs,"opciones":"webservice"},
+			dataType: 'jsonp', // Notice! JSONP <-- P (lowercase)
+			success:function(response) {
+				//console.log(response);
+				if(typeof response.rows === 'undefined'){
+
+				}
+				response.rows.forEach(function(item, i){
+
+					var lyr = o.lyrs.find(function(el){return el.id === item.lyr_name });
+					map.addGeojsonLayer({
+						id: item.lyr_name,
+						geojson : item.geojson,
+						title : lyr.title || ('Capa: ' + item.lyr_name),
+						type : "geosicob",
+						geosicobStyle : lyr.geosicobStyle || {},
+						process: item.process || ""
+					});
+				});
+				if(typeof o.success === 'function'){
+					o.success(response);
+				}
+			},
+			fail:function( jqXHR ) {
+				console.log(jqXHR);
+				if(typeof o.fail === 'function'){
+					o.fail(jqXHR);
+				}
+			}
+		});
+	}
+}
+
+
+//muestra un mensaje que se desvanece autom�ticamente.
+function showAlertMsg(op){
+		if(!op.hasOwnProperty('delay')) op.delay = 3500;
+		$(op.container).stop().empty().fadeIn();
+		$('<div class="collapse alert ' + op.typemsg + '" role="alert" style="margin:0px;"/>').html(op.msg).appendTo(op.container).fadeIn();
+		if(op.delay > 0)	$(op.container).delay(op.delay).fadeOut();
+}
+
+//++++++++++++++++++++++++++++++++
+//Formatea numeros con la cantidad de digitos indicada en max, ej.: 01(2 digitos), 001(3 digitos)
+//++++++++++++++++++++++++++++++++
+function pad (str, max) {
+ 	str = str.toString();
+ 	return str.length < max ? pad("0" + str, max) : str;
+}
+//devuelve los campos de un formulario en formato json.
+(function ($) {
+    $.fn.serializeFormJSON = function () {
+
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function () {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+})(jQuery);
+
+//Sidebar enhanced
+	$('.sidebar-header a').on('click',function(){ $(this).closest('.sidebar-header').find('a').removeClass('btn-info'); $(this).addClass('btn-info'); });
+  $('.sidebar-pane.fulleable').each(function(){
+  	var $p = $(this);
+  	var $btnExpand = $('<span class="btn text-info btn-xs btn-expand" style="position: absolute;bottom: 5px;right: 20px;z-index: 10;"/>')
+  	.html('<i class=" fa fa-expand" aria-hidden="true"></i>')
+  	.on('click',function(){
+  		$p.toggleClass('full-screen');
+  		$btnExpand.find('i').toggleClass('fa-expand fa-compress');
+  	})
+  	.appendTo($p);
+  });
+
+function showMenuTab(id){
+  $('.btn-expand.active,.sidebar-close:visible').trigger('click');
+ 	setTimeout(function(){$('a[href="#' + id + '"]').trigger('click');}, 1000)
+}
+
+function addSHP(data){
+	//console.log(data);
+	var json = JSON.parse(data);
+	map.addGeojsonLayer({id: json.lyr_fix_si || json.lyr_uploaded, geojson : json[json.lyr_fix_si || json.lyr_uploaded], title : json.filesource.replace(".zip", ""), type : "geosicob"});
+	showMenuTab('layers');
+}
+
+</script>
+
+<!-- Listado de mapas base -->
+  <style>/*checkbox estilo youtube */
+
+.yt-uix-checkbox-on-off {
+  position: relative;
+  display: inline-block;
+  width: 35px;
+  padding-right: 2px;
+  overflow: hidden;
+  vertical-align: middle;
+  margin-left : 7px;
+}
+.yt-uix-checkbox-on-off input[type=checkbox] {
+  position: absolute;
+  opacity: 0;
+  width: 37px;
+  height: 15px;
+  margin: 0;  
+  cursor: pointer;
+}
+.yt-uix-checkbox-on-off input[type=checkbox]:checked+label {
+  background-color: #167ac6;
+}
+.yt-uix-checkbox-on-off label {
+  display: inline-block;
+  border: 1px solid transparent;
+  height: 15px;
+  width: 100%;
+  background: #b8b8b8;
+  cursor: pointer;
+  border-radius: 20px;
+  -webkit-transition: 0.2s cubic-bezier(0.77, 0, 0.175, 1);
+}
+.yt-uix-checkbox-on-off input[type=checkbox]:checked+label .checked {
+  display: inline-block;
+  margin-top: 3px;
+  margin-left: 6px;
+  background: no-repeat url(//s.ytimg.com/yts/imgbin/www-hitchhiker-vflQ02J6M.webp) -64px -429px;
+  background-size: auto;
+  width: 10px;
+  height: 7px;
+}
+.yt-uix-checkbox-on-off input[type=checkbox]:checked+label .unchecked {
+  display: none;
+}
+.yt-uix-checkbox-on-off label .unchecked {
+  display: inline-block;
+  float: right;
+  padding-right: 3px;
+}
+.yt-uix-checkbox-on-off input[type=checkbox]:checked+label .toggle {
+  float: right;
+}
+.yt-uix-checkbox-on-off label .toggle {
+  float: left;
+  background: #fbfbfb;
+  height: 13px;
+  width: 13px;
+  border-radius: 13px;
+}</style><!--
+++++++++++++ BaseMaps list items ++++++++++++ 
+-->
+<script id="tmpl-base-maps-item" type="text/x-tmpl">
+{% o.forEach(function(item, i){ %}
+	<div class="row thumbnail basemap-thumbnail"> 
+		<div class="col-xs-10 btn-thumbnail" id="{%=item.id%}"  role="button" href="#" onclick="onSelectBaseMap('{%=item.id%}',this);" >
+			<img src="{%=item.mapthumbs%}" alt="..." class="pull-left img-circle" width="50" height="50" style="margin-right: 5px;"> 
+			<h4 class="caption">{%=item.lyr_options.title%}</h4> 
+		</div>
+			
+		<div class="col-xs-2"> 
+		{% if (item.description && item.description != '') { %}
+			<a href="#{%=item.id%}-info" class="btn btn-link btn-toolbar" data-toggle="collapse">
+				<i class="glyphicon glyphicon-info-sign"></i>
+			</a>
+		{% } %}
+
+		{% if (item.template && item.template != '') { %}
+			<a href="#{%=item.id%}-config" class="btn btn-link btn-toolbar pull-left" data-toggle="collapse">
+				<i class="glyphicon glyphicon-cog" aria-hidden="true"></i>
+			</a>
+		{% } %}
+		</div>
+
+		{% if (item.description && item.description != '') { %}	
+		<div class="clearfix"></div>
+		<div id="{%=item.id%}-info" class="small collapse panel-info text-info panel-footer">
+ 			{% print(item.description, true); %}
+		</div>
+		{% } %}	
+		
+		{% if (item.template && item.template != '') { %}
+		<div class="clearfix"></div>
+		<div id="{%=item.id%}-config" class="collapse modal-footer">
+ 			{% include(item.template,item); %}
+		</div>
+		{% } %} 			
+	</div>
+{% }); %}
+</script>
+
+<script type="text/javascript">
+	
+	function renderBaseMapsPanel(_json, idContainer){
+		var container = document.getElementById(idContainer);
+		if(typeof container === 'undefined') return;
+		$(container).addClass('basemap container-fluid');
+
+    var htmlx = tmpl("tmpl-base-maps-item", _json);
+		$(container).append(htmlx);
+	}
+	
+	function onSelectBaseMap(id,el){
+		if($(el).closest('.basemap-thumbnail').hasClass('active') || $(el).hasClass('btn-thumbnail')){
+			var lyr_info = loadjsonLayer(window.jsonLayers, id);
+
+			if(lyr_info && typeof lyr_info.onSelectFn === 'function'){
+				lyr_info.onSelectFn(el);
+			} else {
+				setBaseMap(id , el);
+			}
+		}
+	}
+	
+	function setBaseMapConfig(idlayer, config){
+		map.getLayers().forEach(function (_lyr) {
+			
+			if (_lyr.getProperties().type =='base' &&  idlayer == _lyr.get('id')) {
+				//if( config.source || false){
+					if(_lyr.getSource().getParams || false){
+						_lyr.getSource().updateParams(config);
+						// @ifdef DEBUG
+						//console.log(_lyr.getSource().getParams());
+						// @endif
+					}
+				//}
+			}            
+    });
+	} 
+	      
+	function setBaseMap(id, el, idlayer){
+			
+		map.getLayers().forEach(function (_lyr) {
+
+			if (_lyr.getProperties().type =='base') {
+				
+				if((idlayer || id) == _lyr.get('id')){
+					_lyr.setZIndex(-1);
+					_lyr.setVisible(true);
+				} else {
+					_lyr.setVisible(false);
+				}
+				/*
+				if(_lyr.getProperties().visible){
+					var params = _lyr.getSource().getParams? _lyr.getSource().getParams() : {};
+					console.log(params);
+				}
+				*/
+			}            
+    });
+    $(el).closest('.basemap').find('.basemap-thumbnail').removeClass('alert-info active'); 
+    $(el).closest('.basemap-thumbnail').addClass('alert-info active');			
+	}
+	
+	function loadjsonLayer(_json, id){
+		if(typeof ol === 'undefined') return null; //no se ha cargado openlayers
+		
+		//var lyr = map.getLayer(id);	
+		//if(!(lyr == null)) return lyr;
+
+		for(var i=0; i < _json.length; ++i) {
+    	var lyr_info = _json[i];
+	
+			if (lyr_info.id == id) {
+								
+					if(lyr_info.loaded || false){
+						// @ifdef DEBUG
+						//console.log('ya esta cargado', lyr_info);
+						// @endif
+						return lyr_info; //si ya lo ha cargado
+					}
+ 					
+ 					var opTile = null;
+ 					
+        	switch(lyr_info.lyr_source.type){
+        		case 'BingMaps':
+        			$.each(['Aerial',
+        							'Road',
+        			        'AerialWithLabels'
+        			        ], function( index, value ) {
+        			  var lyrOp = JSON.parse(JSON.stringify(lyr_info.lyr_options));
+								lyrOp.type = 'base';
+								lyrOp.displayInLayerSwitcher = false; 
+								
+								var lyrSrcOp = JSON.parse(JSON.stringify(lyr_info.lyr_source)); 
+        				lyrSrcOp.imagerySet = value;
+        				lyrOp.source = new ol.source.BingMaps(lyrSrcOp);
+
+        				var lyr = new ol.layer.Tile(lyrOp); 
+								lyr.set('id',lyr_info.id + value );
+								lyr.setVisible(false);
+        				map.addLayer(lyr);
+        			});
+							lyr_info.loaded = true;  			  			
+        			break;
+        		case 'GOOGLE':
+        			$.each(['s', //Satellite 
+        							'm', //Map
+        			        'y', //Hybrid
+        			        't', //Terrain
+        			        'p'  //Terrain, Streets and Water
+        			        ], function( index, value ) {
+        			  var lyrOp = JSON.parse(JSON.stringify(lyr_info.lyr_options));
+								lyrOp.type = 'base'; 
+								lyrOp.displayInLayerSwitcher = false;
+								var lyrSrcOp = JSON.parse(JSON.stringify(lyr_info.lyr_source)); 
+        				lyrSrcOp.url += '&lyrs=' + value;
+        				lyrOp.source = new ol.source.XYZ(lyrSrcOp);
+
+        				var lyr = new ol.layer.Tile(lyrOp); 
+								lyr.set('id',lyr_info.id + value );
+								lyr.setVisible(false);
+        				map.addLayer(lyr);
+        			});
+							lyr_info.loaded = true; 			  			
+        			break;
+        		case 'OSM':
+        			opTile = lyr_info.lyr_options;
+        			opTile.source = new ol.source.OSM()
+        			break;
+        		case 'XYZ':
+        			opTile = lyr_info.lyr_options;
+        			opTile.source = new ol.source.XYZ(lyr_info.lyr_source);
+        			break;
+        		case 'Sentinel2':
+        			
+        			$.each(['1_NATURAL_COL0R',
+        			        '4_AGRICULTURE',
+        							'2_COLOR_INFRARED__VEGETATION_'
+        			        ], function( index, value ) {
+        			  var lyrOp = JSON.parse(JSON.stringify(lyr_info.lyr_options));
+								lyrOp.type = 'base';   
+								lyrOp.displayInLayerSwitcher = false;   	
+        				var lyrSrcOp = JSON.parse(JSON.stringify(lyr_info.lyr_source)); 
+        				lyrSrcOp.params.layers = value;      				
+        				lyrOp.source = new ol.source.TileWMS(lyrSrcOp);
+
+        				var lyr = new ol.layer.Tile(lyrOp); 
+								lyr.set('id',lyr_info.id + value );
+								lyr.setVisible(false);
+
+        				map.addLayer(lyr);
+        			});
+							lyr_info.loaded = true;
+        			break;
+        		case 'MapServer':
+        			opTile = lyr_info.lyr_options;
+        			lyr_info.lyr_source.serverType = 'mapserver';
+        			opTile.source = new ol.source.TileWMS(lyr_info.lyr_source);
+        			break;
+        	}
+
+        	if(!(opTile == null)){
+        		opTile.type = 'base';
+        		opTile.displayInLayerSwitcher = false; 
+        		var lyr = new ol.layer.Tile(opTile); 
+						lyr.set('id',lyr_info.id);
+						lyr.setVisible(false);
+        		map.addLayer(lyr); 
+        	}
+        	if(lyr_info.onSelectFnName){
+        		lyr_info.onSelectFn = new Function('el', lyr_info.onSelectFnName + '(el);');
+        	}
+        	lyr_info.loaded = true;
+        	return lyr_info;
+			}
+		}
+		return null;
+	} 
+</script>
+<!--
+++++++++++++ BingMaps ++++++++++++ 
+-->
+<script type="text/javascript">
+	function onSelectBingMaps(el){
+		setBaseMap('lyr_bingmap', el, 'lyr_bingmap' + $('#bing-layer-select').val());
+	}		
+</script>
+
+<script id="tmpl-bingmaps" type="text/x-tmpl">
+<div class="modal-content modal-body form-horizontal">	
+	<div class=" form-group">
+    <label for="bing-layer-select" class="pull-left col-sm-2 control-label">Mapa</label>
+    <div class="col-sm-10">
+        <select class="form-control" id="bing-layer-select" onchange="onSelectBaseMap('lyr_bingmap',this);">
+        	<option value="Aerial">Im&aacute;gen satelital</option>
+        	<option value="AerialWithLabels" selected>Im&aacute;gen con etiquetas</option>
+        	<option value="Road">Calles</option>
+        </select>
+    </div>
+	</div>
+</div>
+</script>
+
+<!--
+++++++++++++ GoogleMaps ++++++++++++ 
+-->
+<script type="text/javascript">
+	function onSelectGoo(el){
+		setBaseMap('lyr_goo', el, 'lyr_goo' + $('#goo-layer-select').val());
+	}		
+</script>
+<script id="tmpl-goo" type="text/x-tmpl">
+<div class="modal-content modal-body form-horizontal">	
+	<div class=" form-group">
+    <label for="goo-layer-select" class="pull-left col-sm-2 control-label">Mapa</label>
+    <div class="col-sm-10">
+    	<select class="form-control" id="goo-layer-select" onchange="onSelectBaseMap('lyr_goo',this);">
+    		<option value="s">Im&aacute;gen satelital</option>
+    		<option value="y">Im&aacute;gen con etiquetas</option>
+    		<option value="m" selected>Mapa de calles</option>
+    		<option value="t">Terreno</option>
+    	</select>
+    </div>
+	</div>
+</div>
+</script>
+<!--
+++++++++++++ Sentinel 2 ++++++++++++ 
+-->
+<script type="text/javascript">
+	function getSentinelOptions(){
+		var op = {layers : $('#sentinel2-layer-select').val() + ( $('#sentinel2-showdate').prop('checked')?',DATE':''),
+			MAXCC : $('#sentinel2-cloud').val() };
+		return op;
+	}
+	function onSelectSentinel(el){
+			setBaseMapConfig('lyr_sentinel' + $('#sentinel2-layer-select').val(), getSentinelOptions() );
+			setBaseMap('lyr_sentinel' + $('#sentinel2-layer-select').val(), el, 'lyr_sentinel' + $('#sentinel2-layer-select').val());
+	}		
+</script>
+
+<script id="tmpl-sentinel" type="text/x-tmpl">
+	<div class="col-sm-12 form-group">
+		<div class="col-sm-8 form-control-static input-sm">
+			<select class="form-control" id="sentinel2-layer-select" onchange="onSelectBaseMap('lyr_sentinel',this);">
+			 	<option value="1_NATURAL_COL0R" selected>Color Natural</option>
+      	<option value="2_COLOR_INFRARED__VEGETATION_">Indice de Vegetaci&oacute;n</option>
+      	<option value="4_AGRICULTURE">Agricultura</option>
+			</select> 
+		</div>
+		<div class="text-center col-sm-4 form-control-static input-sm">
+			<i class="fa fa-calendar fa-2x" aria-hidden="true"></i> 
+			<span class="yt-uix-checkbox-on-off">
+    		<input id="sentinel2-showdate" class="" type="checkbox" onchange="onSelectBaseMap('lyr_sentinel',this);">
+    		<label for="sentinel2-showdate" id="sentinel2-showdate-label">
+    			<span class="checked">&nbsp;</span>
+					<span class="unchecked"></span>
+					<span class="toggle">&nbsp;</span>
+				</label>
+			</span>
+		</div>
+	</div>
+	<div class="col-sm-12 text-center">
+		<div class="pull-left">
+			<i class="fa fa-cloud fa-2x" aria-hidden="true"></i>
+			<i class="glyphicon glyphicon-minus-sign" aria-hidden="true"></i> 
+		</div>
+		<span id="sentinel2-cloud-info" class="h4">{%=o.lyr_source.params.MAXCC%} </span>
+		<div class="pull-right">
+			<i class="glyphicon glyphicon-plus-sign" aria-hidden="true"></i> 
+			<i class="fa fa-cloud fa-2x" aria-hidden="true"></i>
+		</div>
+		<input id="sentinel2-cloud" name="thumb-roundness" oninput="$('#sentinel2-cloud-info').text(this.value);" onchange="onSelectBaseMap('lyr_sentinel',this);" label="" class="col-xs-4 form-control-static input-sm" type="range" value="{%=o.lyr_source.params.MAXCC%}" min="0" max="100" step="1" >
+	</div>
+</script>
+<script>
+	var jsonLayers = null;
+
+	(function () {
+      $.ajax({
+          'global': false,
+          'url': 'base-maps.json',
+          'dataType': "json",
+          'success': function (data) {
+              jsonLayers = data.layers;
+              renderBaseMapsPanel(jsonLayers,'tool-mapa-base');
+              document.getElementById('lyr_goo').click();
+          }
+      });
+	})();
+</script>
+<!-- Landsat8 -->
+  <!--
+  //++++++++++++++++++++++++++++++++
+  // Landsat 8
+  //++++++++++++++++++++++++++++++++
+-->
+<style>
+    .ol-custom-overviewmap,
+    .ol-custom-overviewmap.ol-uncollapsible {
+      bottom: auto;
+      right: 0;
+      left: 0;
+      top: 40px;
+      padding:0px;
+    }
+/*
+    .ol-custom-overviewmap:not(.ol-collapsed)  {
+      border: 1px solid black;
+    }
+*/
+    .ol-custom-overviewmap .ol-overviewmap-map {
+      border: none;
+      width: 380px;
+    }
+
+    .ol-custom-overviewmap .ol-overviewmap-map {
+      width: 100%;
+      margin:0;
+    }
+    /*
+	@media (max-width: 1199px) {
+    .ol-custom-overviewmap .ol-overviewmap-map {
+      width: 315px;
+    }
+  }
+
+	@media (min-width: 768px) and (max-width: 990px) {
+    .ol-custom-overviewmap .ol-overviewmap-map {
+      width: 230px;
+    }
+  }
+
+	@media (min-width: 10px) and (max-width: 767px) {
+    .ol-custom-overviewmap .ol-overviewmap-map {
+      width: 270px;
+    }
+  }
+  */
+    .ol-custom-overviewmap .ol-overviewmap-box {
+      border: 5px solid red;
+    }
+
+    .ol-custom-overviewmap:not(.ol-collapsed) button{
+      bottom: auto;
+      left: auto;
+      right: 1px;
+      top: 1px;
+    }
+		#overviewsearch button{display : none}
+    .ol-rotate {
+      top: 170px;
+      right: 0;
+    }
+	.scene-wrap {
+		width: 100%;
+		height: 245px;
+		overflow: hidden;
+		background-color: black;
+	}
+	.spinner-2 {
+		position: absolute;
+		top: 95px;
+		left: 85px;
+		width: 50px;
+		height: 60px;
+		text-align: center;
+		font-size: 10px;
+		z-index: 2;
+	}
+	.spinner-2>div {
+		background-color: rgba(255,255,255,.3);
+		height: 100%;
+		width: .44em;
+		border-radius: 3px;
+		display: inline-block;
+		animation: sk-stretchdelay 1.2s infinite ease-in-out;
+		margin-right: 2px;
+	}
+	.spinner-2 .rect2{
+		animation-delay:-1.1s
+	}
+	.spinner-2 .rect3{
+		animation-delay:-1s
+	}
+	.spinner-2 .rect4{
+		animation-delay:-.9s
+	}
+	.spinner-2 .rect5{
+		animation-delay:-.8s
+	}
+
+	@keyframes sk-stretchdelay{0%,100%,40%{transform:scaleY(.4);-webkit-transform:scaleY(.4)}20%{transform:scaleY(1);-webkit-transform:scaleY(1)}}
+</style>
+
+      <script id="tmpl-landsat8" type="text/x-tmpl">
+      	<ul class="nav nav-pills">
+      {% Object.keys(o).forEach(function(key, index) { %}
+      		<li class="{% print(index==0?' active ':'');%}"><a data-toggle="pill" href="#search-tab{%=index%}">{%=key%}</a></li>
+      {% }); %}
+      	</ul>
+    		<div class="tab-content">
+      {% Object.keys(o).forEach(function(key, index) { %}
+    			<div id="search-tab{%=index%}" class="tab-pane fade {% print(index==0?' in active ':'');%}">
+    	{%		o[key].forEach(function(item, i){ %}
+    				<div class="scene-wrap carousel img-thumbnail">
+    					<img class="btn loading collapse img-responsive" src="" onclick="loadLandsat({%=JSON.stringify(item)%}); showMenuTab('layers');" data-src="{%=getThumb(item)%}">
+    					<sup class="text-warning" style="position:absolute;top: 10px;left: 10px;">{%=key%}</sup>
+    					<sub class="label" style="position:absolute;top: 12px;right: 8px;">{%=item.date%}</sub>
+    					<div class="spinner-2"> <div class="rect1"></div> <div class="rect2"></div> <div class="rect3"></div> <div class="rect4"></div> <div class="rect5"></div> </div>
+    				</div>
+      {% 		}); %}
+    			</div>
+      {% }); %}
+    		</div>
+      </script>
+
+
+<script type="text/javascript">
+
+	//++++++++++++++++++++++++++++++++
+	// Visualizador de la grilla L8
+	//++++++++++++++++++++++++++++++++
+			var viewMapControl =  new ol.View({maxZoom: 6 , minZoom: 6 });
+
+			var lyr_Landsat8Grid = new ol.layer.Tile({
+          	source: new ol.source.XYZ({
+       				url: 'https://api.mapbox.com/styles/v1/erikfva/cizmqkk88001g2rqkgdup16gw/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZXJpa2Z2YSIsImEiOiJjaXprdjBzaWowMGVhMzJydm43MzRscmE0In0.VC7fM1EHl9OqPPZ3fD_Eqg'
+    				})
+    			})
+
+      var overviewMapControl = new ol.control.OverviewMap({
+        // see in overviewmap-custom.html to see the custom CSS used
+        className: 'ol-overviewmap ol-custom-overviewmap shadow-b',
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM({
+              'url': 'https://{a-c}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=7c352c8ff1244dd8b732e349e0b0fe8d'
+            })
+          }),
+          lyr_Landsat8Grid
+        ],
+        collapseLabel: '\u00BB',
+        label: '\u00AB',
+        collapsed: true,
+        view : viewMapControl, // new ol.View(/*{maxZoom: 6, minZoom: 6}*/),
+        target : 'overviewsearch'
+      });
+
+      map.addControl(overviewMapControl);
+			map.getView().on(['change:center', 'change:resolution'], function(evt){
+				if(map.getView().getResolution() > 250){
+					$('#search .need-zoom').removeClass('hide');
+					$('#search .btn-update').addClass('hide');
+					return;
+				}
+				$('#search .need-zoom').addClass('hide');
+				$('#search .btn-update').removeClass('hide');
+			});
+	//++++++++++++++++++++++++++++++++
+	// Agrupa los elementos de las imagenes en arr por la referencia "path_row"
+	//++++++++++++++++++++++++++++++++
+  function groupbyPathRow(arr) {
+    return arr.reduce(function (p, c) {
+
+      // create an identifying id from the object values
+      var id = '' + c.path + pad(c.row,3);
+
+      // if the id is not found in the temp array
+      // add the object to the output array
+      // and add the key to the temp array
+      if ( typeof p.temp[id] === 'undefined' ) {
+        //p.out.push(c);
+        //p.temp.push(id);
+        p.temp[id] = [];
+      }
+      (p.temp[id]).push(c);
+      return p;
+
+    // return the deduped array
+    }, { temp: [], out: [] }).temp;
+  }
+
+	/* lazyload.js (c) Lorenzo Giuliani
+	 * MIT License (http://www.opensource.org/licenses/mit-license.html)
+	 *
+	 * expects a list of:
+	 * `<img src="blank.gif" data-src="my_image.png" width="600" height="400" class="lazy">`
+	 */
+	 $(function() {
+	  window.$q = function(q, res){
+	        if (document.querySelectorAll) {
+	          res = document.querySelectorAll(q);
+	        } else {
+	          var d=document
+	            , a=d.styleSheets[0] || d.createStyleSheet();
+	          a.addRule(q,'f:b');
+	          for(var l=d.all,b=0,c=[],f=l.length;b<f;b++)
+	            l[b].currentStyle.f && c.push(l[b]);
+
+	          a.removeRule(0);
+	          res = c;
+	        }
+	        return res;
+	      }
+	    /*
+	    , addEventListener = function(evt, fn){
+	        window.addEventListener
+	          ? this.addEventListener(evt, fn, false)
+	          : (window.attachEvent)
+	            ? this.attachEvent('on' + evt, fn)
+	            : this['on' + evt] = fn;
+	      }
+	    */
+	    , _has = function(obj, key) {
+	        return Object.prototype.hasOwnProperty.call(obj, key);
+	      };
+	  });
+
+	  function loadImage (el, fn) {
+	    var img = new Image()
+	      , src = el.getAttribute('data-src');
+	    img.onload = function() {
+	      if (!! el.parent)
+	        el.parent.replaceChild(img, el)
+	      else
+	        el.src = src;
+
+	      $(el).fadeIn().parent().find('.spinner-2').hide();
+
+	      fn? fn() : null;
+	    }
+	    img.src = src;
+	  }
+
+	  function elementInViewport(el) {
+	    var rect = el.getBoundingClientRect()
+
+	    return (
+	       rect.top    >= 0
+	    && rect.left   >= 0
+	    && rect.top <= (window.innerHeight || document.documentElement.clientHeight)
+	    )
+	  }
+		function getThumb(a) {
+      var b = "01" === a.storedInCollection ? a.productID : a.sceneID;
+    	var c = "01" === a.storedInCollection ? "//landsat-pds.s3.amazonaws.com/c1/" : "//landsat-pds.s3.amazonaws.com/";
+    	return c + "L8/" + pad(a.path,3) + "/" + pad(a.row,3) + "/" + b + "/" + b + "_thumb_small.jpg";
+/*
+                    if ("Landsat7" === j.name) return a.thumbnail.replace("http://", "//");
+                    if ("Landsat8" === j.name) {
+                        var c, e = b.match(l[j.name]);
+                        return c = e[3] ? p[j.name] + q[j.name]["01"] + [e[5], e[6], b, b].join("/") : p[j.name] + q[j.name].PRE + [e[1], e[2], b, b].join("/"), "NIGHT" == a.dayOrNight ? c = d.replace("{s}-", "") + "/L8/thumb/" + b + "_B10_2.jpeg" : c + "_thumb_small.jpg"
+                    }
+*/
+    }
+    function searchLandsat(){
+
+    		if(map.getView().getResolution() > 250){
+    			$('#search .need-zoom').removeClass('hide');
+    			return;
+    		}
+    		$('#search .need-zoom, #search .btn-update').addClass('hide');
+
+    		//Obtiene las coordenadas actuales para la busqueda
+    		var extent = ol.proj.transformExtent(
+        	map.getView().calculateExtent(map.getSize()),
+        	"EPSG:3857", "EPSG:4326"
+        	);
+
+        /*
+    		console.log(map.getView().getZoom());
+    		return true;<div style="text-align: left">
+    		*/
+
+    		//Creando variable global para guardar la referencia de las coordenadas de la ultima busqueda
+    		if(typeof document.searchextent === 'undefined'){
+    			document.searchextent = [];
+      	}
+    		//Si las coordenadas actuales NO han variado a las de la ultima busqueda, entonces no hace nada
+      	if ((extent.length == document.searchextent.length) && extent.every(function(element, index) {
+      return element === document.searchextent[index]; })){ return true; }
+        //actualiza la referencia de las coordenadas de la ultima busqueda
+        document.searchextent = extent;
+
+        //console.log(extent, map.getView().getResolution());
+
+       	var coordinates = [[[ extent[0] ,extent[1]],[extent[2],extent[1]],[extent[2] ,extent[3] ],[extent[0] ,extent[3]],[extent[0],extent[1] ]]];
+       	var currentdate = new Date();
+       	var fini = pad(parseInt(currentdate.getFullYear())-1 ,2) + '-' + pad((currentdate.getMonth()+1),2) + '-' + pad(currentdate.getDate(),2);
+       	var ffin = pad(currentdate.getFullYear(),2) + '-' + pad((currentdate.getMonth()+1),2) + '-' + pad(currentdate.getDate(),2); //'2017-01-31';
+				var params = {"search":
+												{"dayOrNight":"day",
+												 "sunElevation":{"from":0,"to":90},
+												 "cloudCoverage":{"from":0,"to":60},
+												 "date":{"from":fini,"to":ffin},
+												 "shape":{"type":"Polygon","coordinates":coordinates},
+												 "onAmazon":true
+												},
+												"page":1,"limit":20,
+												"fields":["sceneID","productID","sunElevation","cloudCoverage","date","dataGeometry","browseURL","thumbnail","path","row","sensor","dayOrNight","storedInCollection"]
+											}
+        window.fetch('https://lms.eosda.com/search/v2/landsat8', {
+          method: 'POST',
+          body: JSON.stringify(params),
+        }).then((resp) => resp.json())
+        .then(function(data){
+            data = eval( data );
+
+            //ordenando decendente por campo fecha
+            data.results.sort(function(first, second) {
+             	var a = first.date;
+             	var b = second.date;
+
+             	if(a < b) {
+                  return 1;
+             	} else if(a > b) {
+                  return -1;
+             	} else {
+                  return 0;
+             	}
+         		});
+            var arr = groupbyPathRow(data.results);
+            document.getElementById("search-result").innerHTML = tmpl("tmpl-landsat8", arr);
+
+      	    var images = new Array()
+      	      , query = $q('img.loading')
+      	      , processScroll = function(){
+      	          for (var i = 0; i < images.length; i++) {
+      	            if (elementInViewport(images[i])) {
+      	              loadImage(images[i], function () {
+      	                images.splice(i, i);
+      	              });
+      	            }
+      	          };
+      	        }
+      	      ;
+      	    // Array.prototype.slice.call is not callable under our lovely IE8
+      	    for (var i = 0; i < query.length; i++) {
+      	      images.push(query[i]);
+      	    };
+
+      	    processScroll();
+        })
+        .catch(function() {
+            // This is where you run code if the server returns any errors
+            console.log('ocurrio un error!!!');
+        });
+    }
+
+	function loadLandsat(o){
+		var _id = "01" === o.storedInCollection ? o.productID : o.sceneID;
+		if (!!map.getLayer(_id)){
+			//console.log('ya esta cargado', o.sceneID);
+			return;
+		}
+
+    var source = new ol.source.XYZ({
+       url: 'https://{a-d}-render.eosda.com/landsat/' + _id + '/PS:B4:B3:B2:B8/{z}/{x}/{y}'
+    });
+
+    var layer = new ol.layer.Tile({
+    	id : _id,
+    	title: 'Landsat8 ' + o.path + '/' + o.row + ' (' + o.date + ')',
+    	description: JSON.stringify(o),
+      source: source
+    });
+
+    map.addLayer(layer);
+	}
+
+    //+++++++++++++++++++++++++++++++++++++++
+</script>
+
+<!-- Popup Info -->
+	<style>  .ol-popup {
+    position: absolute;
+    -webkit-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.2));
+    padding: 15px;
+    border-radius: 10px;
+    bottom: 12px;
+    left: -50px;
+    min-width: 280px;
+  }
+  .ol-popup:after, .ol-popup:before {
+    top: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+  }
+  .ol-popup:after {
+    border-top-color: white;
+    border-width: 10px;
+    left: 48px;
+    margin-left: -10px;
+  }
+  .ol-popup:before {
+    border-top-color: #cccccc;
+    border-width: 11px;
+    left: 48px;
+    margin-left: -11px;
+  }
+  .ol-popup-closer {
+    text-decoration: none;
+    position: absolute;
+    top: 2px;
+    right: 8px;
+    font-size: initial;
+  }
+  .ol-popup-closer:after {
+    content: "";
+  }
+  #popup-content{max-height:300px;overflow-y:auto}</style>
+	<div id="popupinfo" class="modal-content modal-body ol-popup">
+      <a href="#" id="popup-closer" class="ol-popup-closer">&times;</a>
+      <div id="popup-content"></div>
+</div>
+
+<script id="tmpl-feature-info" type="text/x-tmpl">
+	{% if(typeof o.info_title !== 'undefined'){ %}
+	<div class="h4 text-info" style="word-break: break-all"><i class="glyphicon glyphicon-info-sign"></i> {%=o.info_title%}</div>
+	{% } %}
+	<table class="small table table-striped table-condensed">
+		<tbody>
+	{% for (var key in o) { %}
+		{% if (key != 'info_title' && (o[key] == null || typeof o[key] !== 'object') ) {  %}
+		<tr class="text-uppercase">
+			<th scope="row" class="text-info">{%=key%}</th>
+			<td>{%=(o[key] == null?'-----':o[key])%}</td>
+  	</tr>
+  	{% } %}	
+  {% }; %}
+  	<tbody>
+	</table>	
+</script>
+	<script type="text/javascript">  /**
+   * Elements that make up the popup.
+   */
+  var containerInf = document.getElementById('popupinfo');
+  var contentInf = document.getElementById('popup-content');
+  var closerInf = document.getElementById('popup-closer');
+
+
+  /**
+   * Create an overlay to anchor the popup to the map.
+   */
+  var overlayInf = new ol.Overlay(/** @type {olx.OverlayOptions} */ ({
+    element: containerInf,
+    autoPan: true,
+    autoPanAnimation: {
+      duration: 250
+    }
+  }));
+
+  var displayFeatureInfo = function(evt) { 	
+  	var coordinate = evt.coordinate;
+  	var pixel = map.getEventPixel(evt.originalEvent);
+  	var features = [];
+  	
+    map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+    	feature.setProperties({info_title: layer.getProperties().title}, true);
+      features.push(feature);
+    });
+
+    if (features.length > 0) {
+      var info = [];
+      contentInf.innerHTML = '';
+      for (var i in features) {
+        var props = features[i].getProperties();
+        contentInf.innerHTML += tmpl("tmpl-feature-info", props);
+      }
+      overlayInf.setPosition(coordinate);
+    } else {
+    	
+    	var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
+        coordinate, 'EPSG:3857', 'EPSG:4326'));
+
+    	contentInf.innerHTML = '<p>You clicked here:</p><code>' + hdms +
+        '</code>';
+    }
+    //overlayInf.setPosition(coordinate);
+
+  };
+
+  /**
+   * Add a click handler to hide the popup.
+   * @return {boolean} Don't follow the href.
+   */
+  closerInf.onclick = function() {
+    overlayInf.setPosition(undefined);
+    closerInf.blur();
+    return false;
+  };
+  map.addOverlay(overlayInf);
+	map.on('singleclick', function(evt) {
+
+		displayFeatureInfo(evt);
+	/*	
+    var coordinate = evt.coordinate;
+    var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
+        coordinate, 'EPSG:3857', 'EPSG:4326'));
+
+    contentInf.innerHTML = '<p>You clicked here:</p><code>' + hdms +
+        '</code>';
+    overlayInf.setPosition(coordinate);
+  */
+  
+  });</script>
+	
+	
+	
+<!-- GEOPROCESOS -->
+  <!-- Plantilla de la pantalla principal para la ejecucion de geoproceso -->
+<!-- que contiene el formulario de parametros de cada geoproceso. -->
+<script id="tmpl-frmgeoprocess" type="text/x-tmpl">
+<!-- Modal -->
+<div class="modal fade" id="dlg-frmgeoprocess" tabindex="-1" role="dialog" aria-labelledby="dlg-frmgeoprocess-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="dlg-frmgeoprocess-label">{%print(o.title, true);%}</h4>
+      </div>
+      <div class="modal-body navbar-inverse">
+	<!-- content goes here -->
+			{% include(o.templates.input,o); %}
+      </div>
+      <div class="collapse msg-board" style="margin:0px;"></div>
+    </div>
+  </div>
+</div>
+</script>
+
+<!-- Plantilla del contenido del componente "combobox" -->
+<!-- para mostrar el listado de capas vectoriales disponibles. -->
+<script id="tmpl-geosicob-layers" type="text/x-tmpl">
+{% map.getLayers().forEach(function (lyr) { %}
+	{% if ((lyr.get('type') || 'undefined') == 'geosicob') {  %}
+		<option value="{%=lyr.get('id')%}">{%=lyr.get('title')%}</option>
+	{% } %}           
+{% }); %}
+</script>
+
+<!--
+++++++++++++ Geoprocess list items ++++++++++++ 
+-->
+<script id="tmpl-geoprocess-item" type="text/x-tmpl">
+{% o.forEach(function(item, i){ %}
+	<div class="row thumbnail geoprocess-thumbnail"> 
+		<div class="col-xs-10 btn-thumbnail" id="{%=item.id%}"  role="button" href="#" onclick="showFrmProcess({%=JSON.stringify(item)%});" >
+			<img src="{%=item.icon%}" alt="..." class="pull-left img-circle" width="50" height="50" style="margin-right: 5px;"> 
+			<h4 class="caption">{%print(item.title, true); %}</h4> 
+		</div>
+			
+		<div class="col-xs-2" style="z-index:2"> 
+		{% if (item.description && item.description != '') { %}
+			<a href="#{%=item.id%}-info-gp" class="lead" data-toggle="collapse">
+				<i class="glyphicon glyphicon-info-sign"></i>
+			</a>
+		{% } %}
+
+		</div>
+
+		{% if (item.description && item.description != '') { %}	
+		<div class="clearfix"></div>
+		<div id="{%=item.id%}-info-gp" class="small panel-info text-info panel-footer collapse">
+ 			{% print(item.description, true); %}
+		</div>
+		{% } %}	
+		 			
+	</div>
+{% }); %}
+</script>
+
+<!-- Plantilla para mostrar los resultados. !-->
+<script id="tmpl-geoprocess-result" type="text/x-tmpl">
+{%
+var currentdate = new Date(); 
+var datetime = " " + pad(currentdate.getDate(),2) + "/"
+                + pad((currentdate.getMonth()+1),2)  + "/" 
+                + pad(currentdate.getFullYear(),2) + " @ "  
+                + pad(currentdate.getHours(),2) + ":"  
+                + pad(currentdate.getMinutes(),2) + ":" 
+                + pad(currentdate.getSeconds(),2);
+%}
+<div class="text-info">
+	<span class="shadow-b label label-info">
+	<i class="fa fa-clock-o" aria-hidden="true"></i>
+	{%=datetime%}
+	</span>
+	<h3><i class="fa fa-bolt" aria-hidden="true"></i> {%print(o.gp.title, true);%}</h3>
+</div>
+	{% include(o.gp.templates.result, o); %}
+	<hr>
+</script>
+<!-- Plantilla del geoproceso "sicob_identificar_predio" -->
+<script id="tmpl-sicob_identificar_predio" type="text/x-tmpl">
+  <form id="frm-sicob_identificar_predio" enctype="multipart/form-data" action="" method="POST">
+  	<input type="hidden" name="session_key" value="">
+  	<input type="hidden" name="opciones" value="webservice">
+  	<input type="hidden" id="x_entradatxt" name="x_entradatxt" value="">
+  	<input type="hidden" name="x_opcionestxt" value="">
+    <div class="form-template form-group">
+      <label class="text-info" for="lyr_in">Seleccione la capa de pol&iacute;gonos:</label>
+    	<select class="navbar-inverse form-control" id="lyr_in" name="lyr_in">
+    	{% include('tmpl-geosicob-layers',{}); %} <!-- aqui se usa la plantilla para mostrar el listado de capas vectoriales disponibles. -->
+    	</select>
+    </div>
+  	<input type="hidden" id="modal-result" value="">
+  	<button name="btnsubmit" class="btn btn-lg btn-primary" onclick="runGeoprocess({%=JSON.stringify(o)%});" type="button" id="btnsubmit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Ejecutando...">Ejecutar</button>
+  </form>
+</script>
+
+<script id="tmpl-sicob_identificar_predio_result" type="text/x-tmpl">
+	<p style="word-break: break-all;">
+	{% if(parseInt(o.out.total_predios || '0') > 0){ %}
+		<i class="fa fa-smile-o" aria-hidden="true"></i> Se identific&oacute; <strong>{%=o.out.total_predios%}</strong> predio(s).
+		<h4 class="text-success">Predios:</h4>
+		<div class="table-responsive">
+  		<table class="table table-bordered">
+  		 <thead class="text-uppercase btn-success">
+  		  <tr>
+  		   <th>#</th> 
+  		   <th>Predio</th> 
+  		   <th>Propietario</th>
+  		   <th>T&iacute;tulo</th> 
+  		   <th>Fecha T&iacute;t.</th> 
+  		   <th>Resol. POP</th> 
+  		   <th>Fecha POP</th> 
+  		  </tr> 
+  		 </thead> 
+  		 <tbody class="alert-success">
+  {% 
+  	for (var i in o.out.predios) {
+  %}
+  		  <tr>
+  		   <th scope="row">{%=parseInt(i)+1%}</th> 
+  		   <td>{%=o.out.predios[i].predio%}</td> 
+  		   <td>{%=o.out.predios[i].propietario%}</td> 
+  		   <td>{%=o.out.predios[i].titulo%}</td> 
+  		   <td>{%=o.out.predios[i].fecha_titulo%}</td> 
+  		   <td>{%=o.out.predios[i].resol_pop%}</td> 
+  		   <td>{%=o.out.predios[i].fec_resol_pop%}</td> 
+  		  </tr> 
+  {% } %}
+  		 </tbody>
+  		</table>	
+  	</div>
+	{% }else{ %}
+		<i class="fa fa-frown-o" aria-hidden="true"></i> Lo siento, no se encontraron predios para el &aacute;rea.
+	{% } %}
+	</p>
+	<h4 class="text-primary">Pol&iacute;gonos localizados:</h4>
+	{% include('tmpl-attribute-table', {id: o.out.lyr_over,geojson: o.out.geojson}); %}
+</script>
+
+<script type="text/javascript">
+
+function sicob_identificar_predio_success(result){
+	var source_title = $('#frm-sicob_identificar_predio #lyr_in option:selected').text();
+	result.geojson = JSON.parse(result.lyr_geojson);
+	map.addGeojsonLayer({id: result.lyr_over, geojson : result.geojson, title : source_title + ' -> predios', type : "geosicob"});
+	var lyr_predios = [];
+	if (result.lyr_titulados) lyr_predios.push({id:result.lyr_titulados, title: 'Predios Titulados de ' + source_title, geosicobStyle : {fill:{color:'green'}}});
+	if (result.lyr_pred_varios) lyr_predios.push({id:result.lyr_pred_varios, title: 'Otros predios de ' + source_title});
+	if (result.lyr_pred_pop) lyr_predios.push({id:result.lyr_pred_pop, title: 'POP de ' + source_title});
+	//[(result.lyr_titulados||''),(result.lyr_pred_varios||''),(result.lyr_pred_pop||'')].filter(Boolean).join();	
+	loadGeojson({
+		lyrs : lyr_predios,
+		success : function(result){
+			return true;
+		},
+		fail : function(jqXHR){
+			return false;
+		}
+	});
+	/*
+	if(lyr_predios != ''){
+		$.ajax({
+			url: GEOSICOB_URL + 'geojsonlist.php',
+			data:{"lyr_name":lyr_predios,"opciones":"webservice"},
+			success:function(response) {
+				//console.log(response);
+				response.rows.forEach(function(item, i){
+					addGeojsonLayer({id: item.lyr_name, geojson : item.geojson, title : item.lyr_name, type : "geosicob", process:"identificar_predio"});
+				});
+				return true;
+			}
+		});
+	}
+	*/
+	return true;
+}
+
+function sicob_identificar_predio_beforeRun(){
+	var frm = $('#frm-sicob_identificar_predio');
+	var lyr_in = frm.find('#lyr_in').val();
+	
+	//lyr_in = 'processed.f20170425adgecfbb7048831_nsi_pred';
+
+	if(!lyr_in || lyr_in==""){
+		showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-danger", msg : 'Debe seleccionar una capa.', delay: 0});
+		return false;
+	}
+	frm.find('#x_entradatxt').val('{"lyr_in":"' + lyr_in + '","geojson":true}');
+	return true;
+}
+</script>
+<!-- Plantilla del geoproceso "sicob_sobreposicion_forestal" -->
+<script id="tmpl-sicob_sobreposicion_forestal" type="text/x-tmpl">
+  <form id="frm-sicob_sobreposicion_forestal" enctype="multipart/form-data" action="" method="POST">
+  	<input type="hidden" id="x_entradatxt" name="x_entradatxt" value="">
+    <div class="form-template form-group">
+      <label class="text-info" for="lyr_in">Seleccione la capa de pol&iacute;gonos:</label>
+    	<select class="navbar-inverse form-control" id="lyr_in" name="lyr_in">
+    	{% include('tmpl-geosicob-layers',{}); %} <!-- aqui se usa la plantilla para mostrar el listado de capas vectoriales disponibles. -->
+    	</select>
+    </div>
+  	<input type="hidden" id="modal-result" value="">
+  	<button name="btnsubmit" class="btn btn-lg btn-primary" onclick="runGeoprocess({%=JSON.stringify(o)%});" type="button" id="btnsubmit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Ejecutando...">Ejecutar</button>
+  </form>
+</script>
+
+<script id="tmpl-sicob_sobreposicion_forestal_result" type="text/x-tmpl">
+	<p style="word-break: break-all;">
+	A objeto de informar y verificar la existencia de  Sobre posici&oacute;n con TPFP, Reservas Forestales y las coberturas de derechos forestales (PGMF, PGMFp, POAF, POP, PDM, y otros),
+	se realiz&oacute; el an&aacutelisis de los pol&iacutegonos de la capa:
+	
+	obteniendo el siguiente resultado:
+		<div class="table-responsive shadow-b">
+  		<table class="table table-bordered">
+  		 <thead class="text-uppercase btn-success">
+  		  <tr>
+  		   <th>COBERTURA</th> 
+  		   <th>SUP. SOBREPUESTA<br />ha.</th> 
+  		   <th>%</th>
+  		  </tr> 
+  		 </thead> 
+  		 <tbody class="alert-success">
+  {% 
+  	for (var key in o.out) {
+  %}
+  		  <tr>
+  		   <th scope="row"><a href="#" onclick="loadGeojson({lyrs:'{%=o.out[key].lyr_over%}'})" class="text-success">{%=o.out[key].nombre%}</a></th> 
+  		   <td class="text-right">{%=parseFloat(o.out[key].sicob_sup_total).toFixed(4)%}</td> 
+  		   <td class="text-right">{%=parseFloat(o.out[key].porcentaje_sup).toFixed(1)%}</td> 
+  		  </tr> 
+  {% } %}
+  		 </tbody>
+  		</table>	
+  	</div>	
+	
+	</p>
+	<h4 class="text-primary">Resultado:</h4>
+</script>
+
+<script type="text/javascript">
+
+function sicob_sobreposicion_forestal_success(result){
+	console.log(result); return true;
+	result.geojson = JSON.parse(result.lyr_geojson);
+	addGeojsonLayer({id: result.lyr_over, geojson : result.geojson, title : result.lyr_over, type : "geosicob"});
+	var lyr_predios = [(result.lyr_titulados||''),(result.lyr_pred_varios||''),(result.lyr_pred_pop||'')].filter(Boolean).join();
+	if(lyr_predios != ''){
+		$.ajax({
+			url: GEOSICOB_URL + 'geojsonlist.php',
+			data:{"lyr_name":lyr_predios,"opciones":"webservice"},
+			success:function(response) {
+				//console.log(response);
+				response.rows.forEach(function(item, i){
+					addGeojsonLayer({id: item.lyr_name, geojson : item.geojson, title : item.lyr_name, type : "geosicob", process:"identificar_predio"});
+				});
+				return true;
+			}
+		});
+	}
+	return true;
+}
+
+function sicob_sobreposicion_forestal_beforeRun(){
+	var frm = $('#frm-sicob_sobreposicion_forestal');
+	var lyr_in = frm.find('#lyr_in').val();
+	
+	//lyr_in = 'processed.f20170425adgecfbb7048831_nsi_pred';
+
+	if(!lyr_in || lyr_in==""){
+		showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-danger", msg : 'Debe seleccionar una capa.', delay: 0});
+		return false;
+	}
+	frm.find('#x_entradatxt').val('{"lyr_in":"' + lyr_in + '"}');
+	return true;
+}
+</script>
+  <script type="text/javascript">function showFrmProcess(o){
+	$('.sidebar-close:visible').trigger('click'); //cerrando el menu lateral
+
+	var frm = $('#dlg-frmgeoprocess');
+	if(frm.length){
+		frm.find('.modal-title').html(o.title).end().find('.modal-body').empty().append(tmpl(o.templates.input,o));
+	} else {
+		frm = $('body').append(tmpl("tmpl-frmgeoprocess",o)).find('#dlg-frmgeoprocess');
+	}
+	frm.find('.msg-board').hide();
+	frm.modal('show');
+}
+
+function runGeoprocess(gp){
+
+	if(gp.actions && gp.actions.onBeforeRun && gp.actions.onBeforeRun !== '' && typeof window[gp.actions.onBeforeRun] === 'function' && !window[gp.actions.onBeforeRun]())
+		return;
+
+	var frm = $('#dlg-frmgeoprocess form');
+	var in_data = frm.serializeFormJSON();
+		var $btn = frm.find('#btnsubmit');
+
+		in_data.x_proceso = gp.id;
+		in_data.opciones = 'webservice';
+		in_data.x_opcionestxt = '';
+		in_data.session_key = GEOSICOB_KEY;
+		$btn.button('loading');
+		showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-info", msg : "<h4>" + "Espere por favor..." + "</h4>", delay: 0});
+		$.ajax
+		({
+			type:'post',
+			url: GEOSICOB_URL + 'geoprocesamientoadd.php',
+			data: in_data, //frm.serialize(),
+			success:function(response) {
+				if(response.success && response.success!="0"){
+
+					showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-info", msg : "<h4>" + response.msg + "</h4>", delay:0});
+					var idgeoproceso = response.idgeoproceso;
+					var refreshIntervalId = setInterval(function(){
+						$.ajax
+						({
+							dataType : 'json',
+							url: GEOSICOB_URL + 'geoprocesamientolist.php',
+							data:{cmd:"search",x_idgeoproceso : idgeoproceso, opciones:"webservice"},
+							beforeSend: function( xhr ) {
+								showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-info", msg : "<div><i class=\"fa fa-clock-o fa-spin fa-fw fa-3x\"></i><span class=\"h4 pull-left\">Espere por favor...</span></div>"});
+							},
+							success:function(response) {
+								if( parseInt(response.pager.RecordCount) > 0){
+
+									var out_data = JSON.parse(response.rows[0].salida) || {};
+
+									if(jQuery.isEmptyObject(out_data)){ // Todavia no tiene listo el resultado.
+										showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-info", msg : "<div><i class=\"fa fa-cog fa-spin fa-fw fa-3x\"></i><span class=\"h4 pull-left\">Procesando...</span></div>", delay: 0});
+										return;
+									}
+									if(out_data.hasOwnProperty('error')){ // Se produjo un error!!!.
+										showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-danger", msg : out_data.error, delay: 0});
+										clearInterval(refreshIntervalId);
+										$btn.button('reset');
+										return;
+									}
+									//El resultado ya esta listo!!!.
+									clearInterval(refreshIntervalId);
+									$btn.button('reset');
+									showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-success", msg : "<div><i class=\"fa fa-thumbs-o-up fa-3x\"></i><span class=\"h4 pull-left\">Proceso completado.</span></div>",delay:400});
+									if(response.rows[0].geojson)
+										out_data.lyr_geojson = response.rows[0].geojson;
+
+									if(gp.actions && gp.actions.onSuccess && gp.actions.onSuccess !== '' && typeof window[gp.actions.onSuccess] === 'function')
+										if(!window[gp.actions.onSuccess](out_data)) return;
+
+									$('#dlg-frmgeoprocess .close').click();
+									if(gp.templates && gp.templates.result){
+										var htmlresult = tmpl('tmpl-geoprocess-result', {"gp": gp, "in":in_data,"out":out_data});
+										$('#tool-geoprocess-history').prepend(document.getElementById('tool-geoprocess-result').innerHTML);
+
+										document.getElementById('tool-geoprocess-result').innerHTML = htmlresult;
+
+										$('#geoprocess-count').text(parseInt($('#geoprocess-count').text())+1);
+										$('a[href="#tool-geoprocess-history"]').show();
+										$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
+                      function(){
+                        $('a[href="#tool-geoprocess-result"]').show().trigger('click');
+                      }
+                    );
+									}
+								}
+							},
+							error : function(){
+								clearInterval(refreshIntervalId);
+								$btn.button('reset');
+							}
+						});
+					}, 3000);
+					$('#dlg-frmgeoprocess').one('hide.bs.modal',function(){
+						clearInterval(refreshIntervalId); //cancelando el geoproceso.
+					});
+				}else{ //no se pudo ejecutar el geoprocesamiento.
+
+					showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-danger", msg : response.msg, delay: 0});
+					$btn.button('reset');
+				}
+
+			},
+			error : function( jqXHR , textStatus, errorThrown ){
+				$btn.button('reset');
+				showAlertMsg({container:"#dlg-frmgeoprocess .msg-board", typemsg : "alert-danger", msg : textStatus, delay: 0});
+			}
+		});
+
+	return false;
+}
+
+function renderGeoprocessPanel(_json, idContainer){
+		var container = document.getElementById(idContainer);
+		if(typeof container === 'undefined') return;
+		$(container).addClass('basemap container-fluid');
+
+    var htmlx = tmpl("tmpl-geoprocess-item", _json);
+		$(container).append(htmlx);
+}
+</script>
+  
+  
+<script type="text/javascript">
+	var geoprocess;
+			(function () {
+      $.ajax({
+          'global': false,
+          'url': 'geoprocess.json',
+          'dataType': "json",
+          'success': function (data) {
+          	geoprocess = data;
+          	renderGeoprocessPanel(geoprocess.process, 'tool-geoprocess');
+          	//console.log(geoprocess.process[0]);
+          	/*
+          	var o = geoprocess.process[0];
+          	var html = tmpl("tmpl-frmgeoprocess",o);
+          	console.log(html);
+          	*/
+
+          }
+      });
+	})();
+</script>
+<!-- Formulario para cargar shapefile -->
+	<style>/*----------------------------
+    The file upload form
+-----------------------------*/
+#upload{
+    font-family:'PT Sans Narrow', sans-serif;
+    background-color:#373a3d;
+
+    background-image:-webkit-linear-gradient(top, #373a3d, #313437);
+    background-image:-moz-linear-gradient(top, #373a3d, #313437);
+    background-image:linear-gradient(top, #373a3d, #313437);
+
+    padding:30px;
+    border-radius:3px;
+
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+#drop{
+    background-color: #2E3134;
+    padding: 40px 50px;
+    margin-bottom: 15px;
+    border: 3px dashed #0087F7;
+    text-align: center;
+    text-transform: uppercase;
+    font-size:16px;
+    font-weight:bold;
+    color:#7f858a;
+}
+
+#drop input{
+    display:none;
+}
+
+#upload ul{
+    list-style:none;
+    margin:0 -30px;
+    border-top:1px solid #2b2e31;
+    border-bottom:1px solid #3d4043;
+}
+
+#upload ul li{
+
+    background-color:#333639;
+
+    background-image:-webkit-linear-gradient(top, #333639, #303335);
+    background-image:-moz-linear-gradient(top, #333639, #303335);
+    background-image:linear-gradient(top, #333639, #303335);
+
+    border-top:1px solid #3d4043;
+    border-bottom:1px solid #2b2e31;
+    padding:15px;
+    position: relative;
+}
+
+#upload ul li input{
+    display: none;
+}
+
+#upload ul li p{
+
+    overflow: hidden;
+    white-space: nowrap;
+    color: #EEE;
+    font-size: 16px;
+    font-weight: bold;
+    position: absolute;
+    top: 20px;
+    left: 100px;
+}
+
+#upload ul li i{
+    font-weight: normal;
+    font-style:normal;
+    color:#7f7f7f;
+    display:block;
+}
+
+#upload ul li canvas{
+    top: 15px;
+    left: 32px;
+    position: absolute;
+}
+
+#upload ul li.error p{
+    color:red;
+}
+
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}	</style><!-- Modal -->
+<div class="modal fade" id="dlgUploadSHP" tabindex="-1" role="dialog" aria-labelledby="dlgUploadSHPLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="dlgUploadSHPLabel">Cargar archivo shape</h4>
+      </div>
+      <div class="modal-body navbar-inverse">
+	<!-- content goes here -->
+<form id="upload" enctype="multipart/form-data" action="" method="POST">
+	<input type="hidden" name="session_key" value="">
+	<input type="hidden" name="opciones" value="webservice">
+  <div class="form-group">
+    <label class="text-info" for="proj">Seleccione la proyecci&oacute;n</label>
+  	<select class="navbar-inverse  form-control" id="proj" name="proj">
+    	<option value="32719">UTM ZONA 19</option>
+    	<option value="32720" selected>UTM ZONA 20</option>
+    	<option value="32721">UTM ZONA 21</option>
+    	<option value="4326">GEO WGS84</option> 
+  	</select>
+  </div>
+  
+			<div id="drop">
+				Arrastre el archivo aqu&iacute;
+				<br> <br>
+				<a class="btn btn-lg btn-info" href="#"> Buscar </a>
+				<input name="uploadedfile" type="file" />
+			</div> 
+
+			<ul class="list-group">
+				<!-- The file uploads will be shown here -->
+			</ul>
+			<input type="hidden" id="modal-result" value="">
+</form>
+      </div>
+    </div>
+  </div>
+</div><script type="text/javascript">//antes de mostrar el dialogo se inicializan los estados y las variables.
+$('#dlgUploadSHP').on('show.bs.modal', function (event) {
+	$('li',this).remove();
+	$('#drop',this).show();
+	$('#modal-result',this).val('');
+});
+
+//funcion principal para mostrar el dialogo
+function uploadSHP(__f){
+
+	if(typeof __f === 'function'){
+		$('#dlgUploadSHP').one('hide.bs.modal', function () {
+			
+			var r = $("#modal-result",this).val();
+			//console.log('hide.bs.modal', r);
+			if(r)
+				__f(r);//$('<div class="alert alert-success" />').text(r).appendTo('body');
+		});
+	}
+	$('#dlgUploadSHP').modal('show');
+}
+
+$(function(){
+    var ul = $('#upload ul');
+
+    $('#drop a').click(function(){
+        // Simulate a click on the file input button
+        // to show the file browser dialog
+        $(this).parent().find('input').click();
+    });
+
+    // Initialize the jQuery File Upload plugin
+    $('#upload').fileupload({
+
+        // This element will accept file drag/drop uploading
+        dropZone: $('#drop'),
+
+        // This function is called when a file is added to the queue;
+        // either via the browse button, or via drag/drop:
+        add: function (e, data) {
+        		
+        		$('#drop').hide(); //Si solo se permite subir 1 archivo.
+
+            var tpl = $('<li class="working">' +
+            		'<div class="col-xs-8">' + 
+            		'	<input type="text" value="0" data-width="48" data-height="48"' +
+                ' data-fgColor="#0788a5" data-readOnly="1" data-bgColor="#3e4043" /><p></p>' +
+                '</div>' +
+                '<div class="col-xs-3"><div class="pull-right btn-toolbar">' +
+                '	<a href="#" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>' +
+                '	<a href="#" class="btn btn-primary"><span class="glyphicon glyphicon-upload"></span></a>' +
+                '</div></div><div class="clearfix" style="height:75px"></div>' +
+                '<div class="message"></div>' +
+						'</li>');
+                
+            data.msgboard = tpl.find('.message');
+
+            // Append the file name and file size
+            tpl.find('p').text(data.files[0].name)
+                         .append('<i>' + formatFileSize(data.files[0].size) + '</i>');
+
+            // Add the HTML to the UL element
+            data.context = tpl.appendTo(ul);
+
+            // Initialize the knob plugin
+            tpl.find('input').knob();
+
+            // Listen for clicks on the cancel icon
+            tpl.find('a.btn-danger').click(function(){
+
+                if(tpl.hasClass('working')){
+                	if (typeof jqXHR !== 'undefined'){
+                		jqXHR.abort();
+                	}                 
+                }
+
+                tpl.fadeOut(function(){
+                    tpl.remove();
+                    $('#drop').show();
+                });
+
+            });
+            
+            var jqXHR;
+            
+            data.handleError = function(){
+            		// Something has gone wrong!
+            		data.context.addClass('error');
+            		data.msgboard.html(
+            		'<div class="alert alert-danger alert-dismissible fade in" role="alert">' +
+            		'	<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+            		'	    <span aria-hidden="true">&times;</span>' +
+            		'	</button>' +
+            		'	<strong>' + data.msg + '</strong>' +
+            		'</div>');
+            };
+            
+            tpl.find('a.btn-primary').click(function(){
+            	
+            	$(this).fadeOut();
+            	
+            	if(typeof GEOSICOB_KEY !== 'undefined') $('#upload input[name="session_key"]').val(GEOSICOB_KEY);
+            	data.form[0].action = GEOSICOB_URL + 'shapefilesadd.php' ;
+            	jqXHR = data.submit()
+            	.fail(function (jqXHR, textStatus, errorThrown) {
+            		data.msg =  errorThrown;
+            		data.handleError.call();
+            	})
+            	.always(function (result, textStatus, jqXHR ) { 
+            		
+            		//console.log(result, textStatus, jqXHR);
+
+            		if(textStatus === 'success'){           			
+
+            			if(result.success === '0'){
+            				data.msg = result.msg;
+            				data.handleError.call();
+            				tpl.find('a.btn-primary').fadeIn();
+            				return;
+            			}
+            			/*
+            			tpl.fadeOut(function(){
+                    tpl.remove();
+                    $('#drop').show();
+                	});
+                	*/
+                	$('#upload #modal-result').val(JSON.stringify(result) );
+                	$('#dlgUploadSHP .close').click();
+            		}
+            		           		
+            	});
+          	});
+        },
+        progress: function(e, data){
+
+            // Calculate the completion percentage of the upload
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+
+            // Update the hidden input field and trigger a change
+            // so that the jQuery knob plugin knows to update the dial
+            data.context.find('input').val(progress).change();
+
+            if(progress == 100){
+                data.context.removeClass('working');
+                $('<h2 class="text-center text-info"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Analizando archivo...</h2>')
+                .hide()
+                .appendTo(data.msgboard).fadeIn();
+            }
+        }
+    });
+
+    // Prevent the default action when a file is dropped on the window
+    $(document).on('drop dragover', function (e) {
+        e.preventDefault();
+    });
+
+    // Helper function that formats the file sizes
+    function formatFileSize(bytes) {
+        if (typeof bytes !== 'number') {
+            return '';
+        }
+
+        if (bytes >= 1000000000) {
+            return (bytes / 1000000000).toFixed(2) + ' GB';
+        }
+
+        if (bytes >= 1000000) {
+            return (bytes / 1000000).toFixed(2) + ' MB';
+        }
+
+        return (bytes / 1000).toFixed(2) + ' KB';
+    }
+
+});</script>
+	<!-- JavaScript Includes -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-Knob/1.2.13/jquery.knob.min.js"></script>
+
+		<!-- jQuery File Upload Dependencies -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.17.0/js/vendor/jquery.ui.widget.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.17.0/js/jquery.iframe-transport.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.17.0/js/jquery.fileupload.min.js"></script>
+<!-- login / logout -->
+	<script type="text/javascript">function do_login()
+{
+	var user=$("#flogin #username").val();
+	var pass=$("#flogin #password").val();
+	if(user!=="" && pass!=="")
+	{
+		var $btn = $('#btnsubmitlogin');
+		$btn.button('loading');
+
+		$.ajax
+		({
+			type:'post',
+			url: GEOSICOB_URL + 'login.php',
+			data:{
+				opciones:"login,webservice",
+				username:user,
+				password:pass
+			},
+			success:function(response) {
+				if(response.success && response.success=="1"){
+					console.log(response);
+					 $('#flogin').hide();
+					 $('#flogout').find('#infoname').text(response.nombre).end().fadeIn();
+					 GEOSICOB_KEY = response.session_key;
+				}else{
+					$("#flogin .msg-board").fadeIn().text(response.msg).delay(3200).fadeOut();
+				}
+				$btn.button('reset');
+			}
+		});
+	}
+	else{
+		$("#flogin .msg-board").fadeIn().html('Ingrese el nombre de usuario y contrase&ntilde;a').delay(3500).fadeOut();
+	}
+	
+	return false;
+}
+function do_logout()
+{
+		var $btn = $('#btnsubmitlogout');
+		$btn.button('loading');
+
+		$.ajax
+		({
+			url: GEOSICOB_URL + 'logout.php',
+			data:{
+				opciones:"webservice",
+				session_key:GEOSICOB_KEY,
+			},
+			complete:function() {			
+				$btn.button('reset');
+				$("#flogout").hide();
+				$("#flogin").find("input").val('').end().fadeIn();
+			}
+		});
+
+	return false;
+}</script>
+
+<script>
+	jQuery(document).ready(function(){
+		if (window.frameElement ){
+			var ifrm = window.frameElement
+			$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) 
+			$(top).bind('resize', function () {
+				$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) 
+			})
+		}	
+	})
+</script>
+
+</body>
+</html>
