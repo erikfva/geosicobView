@@ -16,7 +16,9 @@
     "url": "https://github.com/erikfva/geosicob-view/issues"
   },
   "homepage": "https://github.com/erikfva/geosicob-view#readme",
-  "dependencies": {},
+  "dependencies": {
+    "npx": "^10.2.0"
+  },
   "devDependencies": {
     "browser-sync": "^2.18.8",
     "gulp": "^3.9.1",

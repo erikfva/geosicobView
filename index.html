@@ -7,7 +7,7 @@
 
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <link rel="stylesheet" href="ol4/ol.css" type="text/css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/openlayers/4.0.1/ol.css" type="text/css">
   <link rel="stylesheet" href="sidebar-v2/ol3-sidebar.min.css" />
 <!--
 Usar librerias de github:
@@ -72,7 +72,7 @@ Usar librerias de github:
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	<script src="https://cdn.rawgit.com/blueimp/JavaScript-Templates/master/js/tmpl.min.js"></script>
-  <script src="ol4/ol-debug.js" type="text/javascript"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/openlayers/4.0.1/ol.js" type="text/javascript"></script>
 	<!-- Control LayerSwitcher -->
 	<script  src="https://rawgit.com/erikfva/ol3-ext/gh-pages/control/layerswitchercontrol.js"></script>
 
@@ -235,8 +235,8 @@ Usar librerias de github:
     <script src="sidebar-v2/ol3-sidebar.min.js"></script>
 
 <script>
-
-	if (/firefox/i.test(navigator.userAgent)){
+//FIX: FF
+if (/firefox/i.test(navigator.userAgent)){
    window.oldGetComputedStyle = window .getComputedStyle;
    window.getComputedStyle = function (element, pseudoElt) {
       var t = window.oldGetComputedStyle(element, pseudoElt)
@@ -246,7 +246,7 @@ Usar librerias de github:
          return t
       }
    }
-	}
+}
 
 //Control principal del mapa
 var map = new ol.Map({
@@ -304,8 +304,7 @@ map.addControl(switcher);
           'url': 'https://gist.githubusercontent.com/anonymous/c0bcded232580784bb6cc79fd6c4d22b/raw/dab5dc7397a0e8a0025f7e0b4534adaafd001242/map.geojson',
           'dataType': "json",
           'success': function (data) {
-
-          	map.addGeojsonLayer({id: 'testjson', geojson : data, title : 'Test JSON'}); return;
+          	map.addGeojsonLayer({id: 'testjson', geojson : data, title : 'Test JSON'});
           					document.getElementById('tool-geoprocess-result').innerHTML = tmpl('tmpl-attribute-table', {id: 'testjson'});
 										$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
                       function(){
@@ -578,7 +577,7 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
     this.addLayer(vectorLayer);
     var extent = vectorSource.getExtent();
     //console.log(extent);
-    vectorLayer.setExtent(extent);
+		vectorLayer.setExtent(extent);
 		if(!isNaN(this.getSize()[0]))
     	this.getView().fit(extent, this.getSize());
     return vectorLayer;
@@ -2419,18 +2418,19 @@ function do_logout()
 
 	return false;
 }</script>
+	
 
-<script>
-	jQuery(document).ready(function(){
-		if (window.frameElement ){
-			var ifrm = window.frameElement
-			$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) 
-			$(top).bind('resize', function () {
-				$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) 
-			})
-		}	
-	})
-</script>
+	<script>
+		jQuery(document).ready(function(){
+			if (window.frameElement ){
+				var ifrm = window.frameElement;
+				$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) ;
+				$(top).bind('resize', function () {
+					$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) ;
+				})
+			}	
+		})
+	</script>
 
 </body>
 </html>

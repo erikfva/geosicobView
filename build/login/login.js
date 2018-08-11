@@ -4,7 +4,7 @@ function do_login()
 	var pass=$("#flogin #password").val();
 	if(user!=="" && pass!=="")
 	{
-		var $btn = $('#flogin #btnsubmit');
+		var $btn = $('#btnsubmitlogin');
 		$btn.button('loading');
 
 		$.ajax
@@ -37,7 +37,7 @@ function do_login()
 }
 function do_logout()
 {
-		var $btn = $('#flogout #btnsubmit');
+		var $btn = $('#btnsubmitlogout');
 		$btn.button('loading');
 
 		$.ajax
