@@ -78,6 +78,8 @@ Usar librerias de github:
 
 </head>
 <body>
+<center id="top-navbar" class="hide navbar-fixed-top ol-control" style="left:50%; margin-left:-50px; width:100px; text-align: center" >
+</center>
     <div id="sidebar" class="sidebar collapsed">
         <!-- Nav tabs -->
         <div class="sidebar-tabs">
@@ -254,6 +256,7 @@ if (/firefox/i.test(navigator.userAgent)){
 	  
  }
 
+
 //Control principal del mapa
 var map = new ol.Map({
     target: 'map',
@@ -265,6 +268,9 @@ var map = new ol.Map({
         zoom: 8
     })
 });
+
+
+
 
 //Control de barra de menu lateral
 var sidebar = new ol.control.Sidebar({ element: 'sidebar', position: 'left' });
@@ -288,6 +294,7 @@ sidebar.close = function(){
 	}
 	ol.control.Sidebar.prototype.close.call(this);
 }
+
 map.addControl(sidebar);
 
 //Control de listado de capas
