@@ -65,8 +65,8 @@ var geosicobStyles = {
   }
 };
 //** Retorna o asigna el estilo de un layer
-if (ol.layer.Layer.prototype.geosicobStyle === undefined){
-    ol.layer.Layer.prototype.geosicobStyle = function(geosicobStyle){
+if (ol.layer.Base.prototype.geosicobStyle === undefined){
+    ol.layer.Base.prototype.geosicobStyle = function(geosicobStyle){
     	if (!arguments.length) return this.getProperties().geosicobStyle;
     	//console.log(this.getProperties().geosicobStyle);
     	jQuery.extend(true,this.getProperties().geosicobStyle,geosicobStyle);
@@ -161,7 +161,7 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
 		if(typeof o.geojson == 'string'){
 			o.geojson = o.geojson.replace(/\\"/g,'\\"');
 		}
-		console.log(o.geojson)
+		//console.log(o.geojson)
 
 		var vectorSource = new ol.source.Vector({
 			features: (new ol.format.GeoJSON({

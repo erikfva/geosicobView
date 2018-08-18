@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/erikfva/geosicob-view#readme",
   "dependencies": {
+    "bootstrap": "^3.3.7",
+    "font-awesome": "^4.7.0",
     "mapbox-to-ol-style": "^3.4.3",
     "npx": "^10.2.0"
   },
