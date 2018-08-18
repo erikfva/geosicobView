@@ -78,8 +78,8 @@ Usar librerias de github:
 
 </head>
 <body>
-<center id="top-navbar" class="hide navbar-fixed-top ol-control" style="left:50%; margin-left:-50px; width:100px; text-align: center" >
-</center>
+	<center id="top-navbar" class="hide navbar-fixed-top ol-control" style="left:50%; margin-left:-50px; width:100px; text-align: center" >
+	</center>
     <div id="sidebar" class="sidebar collapsed">
         <!-- Nav tabs -->
         <div class="sidebar-tabs">
@@ -256,7 +256,6 @@ if (/firefox/i.test(navigator.userAgent)){
 	  
  }
 
-
 //Control principal del mapa
 var map = new ol.Map({
     target: 'map',
@@ -268,9 +267,6 @@ var map = new ol.Map({
         zoom: 8
     })
 });
-
-
-
 
 //Control de barra de menu lateral
 var sidebar = new ol.control.Sidebar({ element: 'sidebar', position: 'left' });
@@ -294,7 +290,6 @@ sidebar.close = function(){
 	}
 	ol.control.Sidebar.prototype.close.call(this);
 }
-
 map.addControl(sidebar);
 
 //Control de listado de capas
@@ -319,13 +314,11 @@ map.addControl(switcher);
           'success': function (data) {
           	map.addGeojsonLayer({id: 'testjson', geojson : data, title : 'Test JSON'});
           					document.getElementById('tool-geoprocess-result').innerHTML = tmpl('tmpl-attribute-table', {id: 'testjson'});
-										/*
 										$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
                       function(){
                         $('a[href="#tool-geoprocess-result"]').show().trigger('click');
                       }
-										);
-										*/
+                    );
           }
       });
 	})();
@@ -540,7 +533,12 @@ function geosicobStylesFunction(feature, resolution, geosicobStyle) {
 		return new ol.style.Style({
 			stroke: createBorderStyle(feature, resolution, geosicobStyle),
 			fill: createFillStyle(feature, resolution, geosicobStyle),
-			text : createTextStyle(feature, resolution, geosicobStyle)
+			text : createTextStyle(feature, resolution, geosicobStyle),
+			image: new ol.style.Circle({
+radius: 6,
+fill: createFillStyle(feature, resolution, geosicobStyle),
+stroke: createBorderStyle(feature, resolution, geosicobStyle),
+})
 		})
 }
 
@@ -1480,7 +1478,8 @@ function addSHP(data){
 		}
 
     var source = new ol.source.XYZ({
-       url: 'https://{a-d}-render.eosda.com/landsat/' + _id + '/PS:B4:B3:B2:B8/{z}/{x}/{y}'
+			 //url: 'https://{a-d}-render.eosda.com/landsat/' + _id + '/PS:B4:B3:B2:B8/{z}/{x}/{y}'
+			 url: 'https://{a-d}-render.eosda.com/L8/' + _id + '/B4,B3,B2/{z}/{x}/{y}?PANSHARPENING=1'
     });
 
     var layer = new ol.layer.Tile({

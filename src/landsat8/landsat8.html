@@ -364,7 +364,8 @@
 		}
 
     var source = new ol.source.XYZ({
-       url: 'https://{a-d}-render.eosda.com/landsat/' + _id + '/PS:B4:B3:B2:B8/{z}/{x}/{y}'
+			 //url: 'https://{a-d}-render.eosda.com/landsat/' + _id + '/PS:B4:B3:B2:B8/{z}/{x}/{y}'
+			 url: 'https://{a-d}-render.eosda.com/L8/' + _id + '/B4,B3,B2/{z}/{x}/{y}?PANSHARPENING=1'
     });
 
     var layer = new ol.layer.Tile({
