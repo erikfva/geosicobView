@@ -19,7 +19,7 @@ var argv = require('yargs').argv,
     gulpif = require('gulp-if');
 var inject = require('gulp-inject');
 /*
-* Configuración de la tarea para concatenar listado de mapas bases 'mb'
+* Configuraciï¿½n de la tarea para concatenar listado de mapas bases 'mb'
 */
 
 gulp.task('mapas-base', function () {
@@ -182,6 +182,79 @@ gulp.task('login', function (cb) {
 
 gulp.task('build-index',['login','mapas-base','landsat8','uploadgeofile', 'popupinfo','geoprocess'], function () {
 	gulp.src('src/index.html')
+ 	.pipe(inject(gulp.src('src/geoutils.js').pipe(gulpif(argv.prod,uglify())), {
+    starttag: '<!-- inject:geoutils -->',
+    removeTags : true,
+    transform: function (filePath, file) {
+      // return file contents as string 
+      return file.contents.toString('utf8')
+    }
+  }))
+	.pipe(inject(gulp.src(!!argv.prod?'build/landsat8.min.html':'build/landsat8.html'), {
+    starttag: '<!-- inject:landsat8:{{ext}} -->',
+    removeTags : true,
+    transform: function (filePath, file) {
+      // return file contents as string 
+      return file.contents.toString('utf8')
+    }
+  }))
+ 	.pipe(inject(gulp.src(!!argv.prod?'build/mapas_base.min.html':'build/mapas_base.html'), {
+    starttag: '<!-- inject:mapas_base:{{ext}} -->',
+    removeTags : true,
+    transform: function (filePath, file) {
+      // return file contents as string 
+      return file.contents.toString('utf8')
+    }
+  }))
+	.pipe(
+		inject(
+			gulp.src(['build/uploadgeofile/*.*']), 
+			{
+    		starttag: '<!-- inject:uploadfrm:all -->',
+    		removeTags : true,
+    		transform: function (filePath, file) {
+    			return wrapTags(filePath, file, !!argv.prod);
+    		}
+  		}
+  	))
+	.pipe(
+		inject(
+			gulp.src(['build/geoprocess/*.*']), 
+			{
+    		starttag: '<!-- inject:geoprocess:all -->',
+    		removeTags : true,
+    		transform: function (filePath, file) {
+    			return wrapTags(filePath, file, !!argv.prod);
+    		}
+  		}
+  	))
+	.pipe(
+		inject(
+			gulp.src(['build/popupinfo/*.*']), 
+			{
+    		starttag: '<!-- inject:popupinfo:all -->',
+    		removeTags : true,
+    		transform: function (filePath, file) {
+    			return wrapTags(filePath, file, !!argv.prod);
+    		}
+  		}
+  	))
+ 	.pipe(
+		inject(
+			gulp.src(['build/login/*.*']), 
+			{
+    		starttag: '<!-- inject:login:{{ext}} -->',
+    		removeTags : true,
+    		transform: function (filePath, file) {
+    			return wrapTags(filePath, file, !!argv.prod);
+    		}
+  		}
+  	))
+	.pipe(gulp.dest('./'))
+});
+
+gulp.task('build-simca',['login','mapas-base','landsat8','uploadgeofile', 'popupinfo','geoprocess'], function () {
+	gulp.src('src/geosimca.html')
  	.pipe(inject(gulp.src('src/geoutils.js').pipe(gulpif(argv.prod,uglify())), {
     starttag: '<!-- inject:geoutils -->',
     removeTags : true,

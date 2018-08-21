@@ -14,9 +14,15 @@ if (ol.Map.prototype.getLayer === undefined) {
 
 //**********************************************//
 //** FUNCIONES PARA APLICAR ESTILOS
-//**********************************************//
+//**********************************************//				
 var geosicobStyles = {
   "default" : {
+		icon : {
+			file: "",
+			maxresol : 1200,
+			position: "center", //left,right,top,bottom,top-left,top-right,bottom-left,bottom-right
+/** opacity, scale **/			
+		},
   	border : { //stroke
   		color : 'blue',
   		lineCap : 'round', // extremos de la linea (butt, round, or square. Default is round).
@@ -35,11 +41,11 @@ var geosicobStyles = {
   		color : 'rgba(0, 0, 255, 0.1)'
   	},
   	text : {
-  		field : 'sicob_id',
+  		field : '',
   		type : 'normal', //hide, shorten, wrap
   		maxresol : 1200,
-      align:'Center',
-      baseline:'Middle',
+      align:'center',
+      baseline:'middle', //Text base line. Possible values: 'bottom', 'top', 'middle', 'alphabetic', 'hanging', 'ideographic'.
       size:20,
       offsetX:parseInt(0, 10),
       offsetY:parseInt(0, 10),
@@ -48,7 +54,8 @@ var geosicobStyles = {
       font: 'Arial',
       color:'blue',
       outlineColor:'#ffffff',
-      outlineWidth:parseInt(3, 10)
+			outlineWidth:parseInt(3, 10),
+			overflow: false,
     }
   },
   "titulado" : {
@@ -74,6 +81,19 @@ if (ol.layer.Base.prototype.geosicobStyle === undefined){
     }
 }
 //** Prepara el texto de la etiqueta
+function stringDivider(str, width, spaceReplacer) {
+	if (str.length>width) {
+			var p=width
+			for (;p>0 && str[p]!=' ';p--) {
+			}
+			if (p>0) {
+					var left = str.substring(0, p);
+					var right = str.substring(p+1);
+					return left + spaceReplacer + stringDivider(right, width, spaceReplacer);
+			}
+	}
+	return str;
+}
 var getText = function(feature, resolution, geosicobStyle) {
   //console.log(feature);
   var type = geosicobStyle.text.type;
@@ -105,6 +125,8 @@ var createTextStyle = function(feature, resolution, geosicobStyle) {
   var fillColor = geosicobStyle.text.color;
   var outlineColor = geosicobStyle.text.outlineColor;
   var outlineWidth = parseInt( geosicobStyle.text.outlineWidth, 10);
+	var	overflow = geosicobStyle.text.overflow;
+
 
   return new ol.style.Text({
     textAlign: align,
@@ -115,7 +137,8 @@ var createTextStyle = function(feature, resolution, geosicobStyle) {
     stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth}),
     offsetX: offsetX,
     offsetY: offsetY,
-    rotation: rotation
+		rotation: rotation,
+		overflow: overflow,
   });
 };
 //** Prepara el borde
@@ -135,15 +158,41 @@ var createFillStyle = function(feature, resolution, geosicobStyle) {
 	data.color = ol.color.asString(color);
   return new ol.style.Fill(data);
 };
-//** Prepara el estilo = borde + fondo + etiqueta
-function geosicobStylesFunction(feature, resolution, geosicobStyle) {
-		return new ol.style.Style({
-			stroke: createBorderStyle(feature, resolution, geosicobStyle),
-			fill: createFillStyle(feature, resolution, geosicobStyle),
-			text : createTextStyle(feature, resolution, geosicobStyle)
-		})
+//** Prepara el icono
+var createIconStyle = function(feature, resolution, geosicobStyle) {
+	var data = geosicobStyle.icon;
+	if(geosicobStyle.icon.file != '')
+		data.src = geosicobStyle.icon.file;
+	data.opacity = data.opacity || 1;
+	if (resolution > data.maxresol) 
+		data.opacity = 0;
+	switch (data.position) {
+		case 'center':
+			data.anchor = [0.5, 0.5];
+			break;
+		case 'top':
+			data.anchor = [0.5, 0];
+			break;
+		case 'bottom':
+			data.anchor = [0.5, 1];
+			break;
+	}
+	return new ol.style.Icon(data);
 }
 
+//** Prepara el estilo = borde + fondo + etiqueta
+function geosicobStylesFunction(feature, resolution, geosicobStyle) {
+	var data = {
+		stroke : createBorderStyle(feature, resolution, geosicobStyle),
+		fill : createFillStyle(feature, resolution, geosicobStyle),
+	}
+	if(geosicobStyle.text.field != '') 
+		data.text =  createTextStyle(feature, resolution, geosicobStyle);
+
+	if(geosicobStyle.icon.file != '') 
+		data.image = createIconStyle(feature, resolution, geosicobStyle);
+		return new ol.style.Style(data)
+}
 //**********************************************//
 //** Agrega una capa vectorial a partir de un geoJSON. El parametro de entrada es un json con los sgtes atributos:
 //	id (alfanumerico): Identificador unico para la nueva capa.
@@ -152,32 +201,35 @@ function geosicobStylesFunction(feature, resolution, geosicobStyle) {
 //										Ej.: Para las capas cargadas del geoSICOB se asiga automaticamente el valor de 'geosicob'.
 //	geojson (texto/JSON): Contenido en formato geoJSON de la capa, el formato puede ser en texto plano o en JSON.
 if (ol.Map.prototype.addGeojsonLayer === undefined) {
-		ol.Map.prototype.addGeojsonLayer = function addGeojsonLayer(o){
-		if (!!this.getLayer(o.id)){
-			//console.log('ya esta cargado', g.id);
-			return;
-		}
-
+	ol.Map.prototype.addGeojsonLayer = function addGeojsonLayer(o){
+	var lyr = this.getLayer(o.id); //buscando si ya existe el layer
+	if (!!lyr){
+		//console.log('ya esta cargado', g.id);
+		if(!!!o.replace) return;
+		this.removeLayer(lyr);		
+	}
+	var olMap = this;
+	var createLayer = function(){
 		if(typeof o.geojson == 'string'){
-			o.geojson = o.geojson.replace(/\\"/g,'\\"');
+		o.geojson = o.geojson.replace(/\\"/g,'\\"');
 		}
 		//console.log(o.geojson)
 
 		var vectorSource = new ol.source.Vector({
 			features: (new ol.format.GeoJSON({
-         projection: 'EPSG:4326',
-         featureProjection: 'EPSG:3857'
+				projection: 'EPSG:4326',
+				featureProjection: 'EPSG:3857'
 			})).readFeatures(typeof o.geojson !== 'object'? JSON.parse(o.geojson):o.geojson)
 		});
 
-    function applyStylesFunction(feature, resolution) {
-    	return geosicobStylesFunction(feature, resolution, vectorLayer.geosicobStyle())
+		function applyStylesFunction(feature, resolution) {
+			return geosicobStylesFunction(feature, resolution, vectorLayer.geosicobStyle())
 		}
-
-    var opVectorLayer = jQuery.extend (
-    	true,
-    	JSON.parse(JSON.stringify(o)),
-    	{
+		o.id = o.id || 'newgeojson';
+		var opVectorLayer = jQuery.extend (
+			true,
+			JSON.parse(JSON.stringify(o)),
+			{
 				geosicobStyle: jQuery.extend(true,JSON.parse(JSON.stringify(geosicobStyles.default)) ,o.geosicobStyle || {}),
 				id		:	o.id,
 				title : o.title || ("Capa: " + o.id),
@@ -185,29 +237,48 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
 			},
 			{
 				style: applyStylesFunction,
-				source: vectorSource
+				source: vectorSource,
+				declutter: true
 			}
 		);
 		var vectorLayer = new ol.layer.Vector(opVectorLayer);
-    this.addLayer(vectorLayer);
-    var extent = vectorSource.getExtent();
-    //console.log(extent);
+		olMap.addLayer(vectorLayer);
+		var extent = vectorSource.getExtent();
+		//console.log(extent);
 		vectorLayer.setExtent(extent);
-		if(!isNaN(this.getSize()[0]))
-			this.getView().fit(extent, this.getSize());
+		if(!isNaN(olMap.getSize()[0]))
+		olMap.getView().fit(extent, olMap.getSize());
 		
 		var infoContainer = document.getElementById('tool-geoprocess-result');
 		if(infoContainer){
 			infoContainer.innerHTML = tmpl('tmpl-attribute-table', {id: o.id});
-			$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
-        function(){
-          $('a[href="#tool-geoprocess-result"]').removeClass('collapse').trigger('click');
-        }
-      );
-		} 
-		
-    return vectorLayer;
+			$('a[href="#tool-geoprocess-result"]').removeClass('collapse');
+			if(!!o.showtable){
+				$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
+					function(){
+						$('a[href="#tool-geoprocess-result"]').trigger('click');
+					}
+				)
+			}
+		}
+		return vectorLayer;			
 	}
+	
+	var url = o.url || '';
+	if( url != '' ){
+		$.ajax({
+			 'global': false,
+			 'url': url,
+			 'dataType': "json",
+			 'success': function (data) {
+				o.geojson = data;
+				return createLayer();
+			 }
+		});		
+	} else {
+		return createLayer();
+	} 
+}
 }
 //**********************************************//
 // Carga una capa geoJSON desde el servidor del geoSICOB.
