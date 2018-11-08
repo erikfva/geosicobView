@@ -64,7 +64,7 @@
 			},
 			"lyr_source" : {
 				"type"	:	"GOOGLE",
-				"url"		:	"https://mt.google.com/vt/x={x}&y={y}&z={z}",
+				"url"		:	"https://mt{1-3}.google.com/vt/x={x}&y={y}&z={z}",
 				"attribution" : "� Google, Inc"
 			},
 			"template" : "tmpl-goo"
@@ -84,25 +84,98 @@
 			}
 		},
 		{
-			"id" : "lyr_base_scz",
-			"mapthumbs" : "https://erikfva.github.io/geosicobView/images/mapthumbs/osm.jpg",
-			"description" : "Mapa Base de Santa Cruz - Bolivia. (no disponible)",
+			"id" : "lyr_simca_base",
+			"mapthumbs" : "../images/lyr_simca_base.png",
+			"description" : "Mapas base del SIMCA - Santa Cruz",
+			"tiled": true,
 			"lyr_options" : {
-				"title" : "Santa Cruz - Bolivia",
+				"title" : "Mapa político",
 				"preload"	: "Infinity"
 			},
 			"lyr_source" : {
-				"type"	:	"MapServer",
-				"url" : "http://localhost/msrv",
-				"params"	:	{
-					"MAP":"/mapserver/mapfiles/base/base.map",
-					"LAYERS":"LIMITE MUNICIPAL,CAPITAL MUNICIPAL,PUEBLO,CAMINO PRINCIPAL,CAMINO SECUNDARIO,HIDROGRAFIA,LAGUNAS",
-					"TILED":"true",
-					"STYLES":""
-				},
+				"type"	:	"WMS",
+				"url" : "../map.php",
+				"params" : {
+					"FORMAT": "image/png", 
+					"VERSION" : "1.1.1",
+					"tiled": true,
+					"STYLES": "",
+					"LAYERS": "simca:mapa-base",
+					"exceptions": "application/vnd.ogc.se_inimage",
+					"tilesOrigin" : "-64.84629782990959 , -20.469813339342156"
+		   },
 				"maxZoom"	: "19",
-				"gutter": "10"
+				"gutter": "10",
+				"serverType": "geoserver"
 			}
-		}
+		},
+		{
+			"id" : "lyr_simca_ccontinental",
+			"mapthumbs" : "../images/lyr_simca_ccontinental.png",
+			"description" : "Mapas base del SIMCA - Santa Cruz",
+			"tiled": true,
+			"lyr_options" : {
+				"title" : "Cuencas Continentales",
+				"preload"	: "Infinity"
+			},
+			"lyr_source" : {
+				"type"	:	"WMS",
+				"url" : "../map.php",
+				"legendURL" : "../map.php?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=simca:UH_Nivel_1&STYLE=",
+				"params" : {
+					"FORMAT": "image/png", 
+					"VERSION" : "1.1.1",
+					"tiled": true,
+					"STYLES": "",
+					"LAYERS": "simca:UH_Nivel_1",
+					"exceptions": "application/vnd.ogc.se_inimage",
+					"tilesOrigin" : "-69.64441241238033 , -22.90621873113233"
+		   },
+				"maxZoom"	: "19",
+				"gutter": "10",
+				"serverType": "geoserver"
+			}
+		},
+		{
+			"id" : "lyr_simca_cdepartamental",
+			"mapthumbs" : "../images/lyr_simca_cdepartamental.png",
+			"description" : "Mapas base del SIMCA - Santa Cruz",
+			"tiled": true,
+			"lyr_options" : {
+				"title" : "Subcuencas Departamentales",
+				"preload"	: "Infinity"
+			},
+			"lyr_source" : {
+				"type"	:	"WMS",
+				"url" : "../map.php",
+				"legendURL" : "../map.php?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&FORMAT_OPTIONS=layout:style-editor-legend;fontAntiAliasing:true&LEGEND_OPTIONS=forceLabels:on;fontAntiAliasing:true&LAYER=simca:macrocuencas_departamentales_GADSCZ_geo&STYLE=simca:macrocuencas-departamentales&SCALE=1000000",
+				"params" : {
+					"FORMAT": "image/png", 
+					"VERSION" : "1.1.1",
+					"tiled": true,
+					"STYLES": "",
+					"LAYERS": "simca:cuencas-nivel4",
+					"exceptions": "application/vnd.ogc.se_inimage",
+					"tilesOrigin" : "-66.8832172005978, -22.02570274975113"
+		   },
+				"maxZoom"	: "19",
+				"serverType": "geoserver"
+			}
+		},
+		{
+			"id" : "lyr_cambio",
+			"mapthumbs" : "../images/lyr_cambio.png",
+			"description" : "Cambio de uso de suelo.",
+			"lyr_options" : {
+				"title" : "Cambio de uso de suelo",
+				"preload" : "Infinity"
+			},
+			"lyr_source" : {
+				"type"	:	"XYZ",
+				"url"		:	"http://tiles/cambio/{z}/{x}/{y}.png",
+				"legendURL" : "http://tiles/cambio/leyenda.png",
+				"attribution" : "Gobernaci&oacute;n de Santa Cruz - Bolivia"
+			}
+		}		
 	]
 }

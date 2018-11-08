@@ -112,7 +112,12 @@
 	function onSelectBaseMap(id,el){
 		if($(el).closest('.basemap-thumbnail').hasClass('active') || $(el).hasClass('btn-thumbnail')){
 			var lyr_info = loadjsonLayer(window.jsonLayers, id);
-
+			
+			$('#legend').removeClass('show').addClass('hide');
+			if(!!lyr_info.lyr_source.legendURL){
+				$('#legend').toggleClass('show hide').find('img').attr('src',lyr_info.lyr_source.legendURL);
+			}
+			
 			if(lyr_info && typeof lyr_info.onSelectFn === 'function'){
 				lyr_info.onSelectFn(el);
 			} else {
@@ -156,9 +161,9 @@
 				}
 				*/
 			}            
-    });
-    $(el).closest('.basemap').find('.basemap-thumbnail').removeClass('alert-info active'); 
-    $(el).closest('.basemap-thumbnail').addClass('alert-info active');			
+    	});
+    	$(el).closest('.basemap').find('.basemap-thumbnail').removeClass('alert-info active'); 
+    	$(el).closest('.basemap-thumbnail').addClass('alert-info active');			
 	}
 	
 	function loadjsonLayer(_json, id){
@@ -168,7 +173,7 @@
 		//if(!(lyr == null)) return lyr;
 
 		for(var i=0; i < _json.length; ++i) {
-    	var lyr_info = _json[i];
+    		var lyr_info = _json[i];
 	
 			if (lyr_info.id == id) {
 								
@@ -256,7 +261,15 @@
         			opTile = lyr_info.lyr_options;
         			lyr_info.lyr_source.serverType = 'mapserver';
         			opTile.source = new ol.source.TileWMS(lyr_info.lyr_source);
-        			break;
+					break;
+				case 'WMS':
+        			
+					if(!!lyr_info.tiled){
+						opTile = lyr_info.lyr_options;
+						opTile.source = new ol.source.TileWMS(lyr_info.lyr_source);
+					}
+        			
+        			break;					
         	}
 
         	if(!(opTile == null)){
@@ -277,6 +290,10 @@
 		return null;
 	} 
 </script>
+<!-- Componente para mostrar la leyenda del mapa -->
+<div id="legend" class="navbar navbar-toggle  ol-control hide" style="right:0;">
+	<img src="">
+</div>
 <!--
 ++++++++++++ BingMaps ++++++++++++ 
 -->

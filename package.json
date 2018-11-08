@@ -19,12 +19,12 @@
   "dependencies": {
     "bootstrap": "^3.3.7",
     "font-awesome": "^4.7.0",
+    "gulp": "^3.9.1",
     "mapbox-to-ol-style": "^3.4.3",
     "npx": "^10.2.0"
   },
   "devDependencies": {
     "browser-sync": "^2.18.8",
-    "gulp": "^3.9.1",
     "gulp-clean-css": "^3.0.4",
     "gulp-concat": "^2.6.1",
     "gulp-connect-php": "0.0.8",

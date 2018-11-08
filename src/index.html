@@ -249,7 +249,8 @@ var map = new ol.Map({
     layers: [],
     loadTilesWhileInteracting: true,
     view: new ol.View({
-        center: ol.proj.transform([-61.3, -16.80], 'EPSG:4326', 'EPSG:3857'), //+/- en SCZ
+		center: ol.proj.transform([-61.3, -16.80], 'EPSG:4326', 'EPSG:3857'), //+/- en SCZ
+		maxZoom: 20,
         zoom: 8
     })
 });

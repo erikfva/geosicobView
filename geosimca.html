@@ -9,13 +9,24 @@
 	<link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="ol/ol.css">
 	<link rel="stylesheet" href="sidebar-v2/ol3-sidebar.min.css" />
-<!--
+	<link rel="stylesheet" href="ol-ext/dist/ol-ext.min.css" />
+
+	<!--
 Usar librerias de github:
 1.- Find your link on GitHub, and click to the "Raw" version of the file.
 2.- Copy the URL, and link to it.
 3.- Change raw.githubusercontent.com to rawgit.com (non-production) or cdn.rawgit.com (production)
 -->
-<link rel="stylesheet" href="ol-ext/dist/ol-ext.min.css" />
+
+<!-- 
+********************************
+  *** CONFIGURACION GLOBAL ***
+********************************
+-->
+<script>
+	//window.cloudURL = 'https://erikfva.github.io/geosicobView/';
+</script>
+<!--*****************************-->
 
 <style>
       html, body {
@@ -73,9 +84,9 @@ Usar librerias de github:
 
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="jquery/jquery-3.3.1.min.js"></script>
 <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="https://cdn.rawgit.com/blueimp/JavaScript-Templates/master/js/tmpl.min.js"></script>
+<script src="blueimp/tmpl.min.js"></script>
 <script src="ol/ol.js"></script>
 <!-- Control LayerSwitcher -->
 <script type="text/javascript" src="ol-ext/dist/ol-ext.min.js"></script>
@@ -98,7 +109,7 @@ Usar librerias de github:
                 	</a>
                 </li>
                 <li><a href="#search" role="tab"><i class="fa fa-search"></i></a></li>
-                <li>
+                <li class="hidden">
                 	<a href="#geoprocesses" role="tab">
                 		<span class="fa-stack">
                 			<i class="fa fa-square-o fa-stack-2x"></i>
@@ -106,9 +117,9 @@ Usar librerias de github:
                 		</span>
                 	</a>
                 </li>
-                <li class="disabled"><a href="#messages" role="tab"><i class="fa fa-envelope"></i></a></li>
-                <li><a href="javascript:$('.sidebar-close:visible').trigger('click'); uploadSHP( function(r){ addSHP(r); } );"><i class="fa fa-upload" aria-hidden="true"></i></a></li>
-                <li>
+                <li class="hidden disabled"><a href="#messages" role="tab"><i class="fa fa-envelope"></i></a></li>
+                <li class="hidden" ><a href="javascript:$('.sidebar-close:visible').trigger('click'); uploadSHP( function(r){ addSHP(r); } );"><i class="fa fa-upload" aria-hidden="true"></i></a></li>
+                <li class="hidden" >
                 	<a href="javascript:showFrmProcess(geoprocess.process[0]);">
                 		<span class="fa-stack">
                 			<sub class="fa fa-cogs fa-stack-1x"></sub>
@@ -119,7 +130,7 @@ Usar librerias de github:
             </ul>
 
             <ul role="tablist">
-                <li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
+                <li class="hidden"><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
             </ul>
         </div>
 
@@ -276,7 +287,8 @@ var map = new ol.Map({
     layers: [],
     loadTilesWhileInteracting: true,
     view: new ol.View({
-        center: ol.proj.transform([-61.3, -16.80], 'EPSG:4326', 'EPSG:3857'), //+/- en SCZ
+		center: ol.proj.transform([-61.3, -16.80], 'EPSG:4326', 'EPSG:3857'), //+/- en SCZ
+		maxZoom: 20,
         zoom: 8
     })
 });
@@ -438,9 +450,9 @@ var geosicobStyles = {
       weight:'bold',
       rotation:parseFloat(0),
       font: 'Arial',
-      color:'blue',
+      color:'#000000',
       outlineColor:'#ffffff',
-			outlineWidth:parseInt(3, 10),
+			outlineWidth:parseInt(2, 10),
 			overflow: false,
     }
   },
@@ -584,8 +596,9 @@ function geosicobStylesFunction(feature, resolution, geosicobStyle) {
 //	id (alfanumerico): Identificador unico para la nueva capa.
 //	title (opcional) : Titulo para la nueva capa.
 //	type (opcional) : Valor para clasificar la capa, util para procesos posteriores.
-//										Ej.: Para las capas cargadas del geoSICOB se asiga automaticamente el valor de 'geosicob'.
+//	Ej.: Para las capas cargadas del geoSICOB se asiga automaticamente el valor de 'geosicob'.
 //	geojson (texto/JSON): Contenido en formato geoJSON de la capa, el formato puede ser en texto plano o en JSON.
+//  url (opcional) : Carga el geoJSON mediante llamada AJAX a la URL dada.
 if (ol.Map.prototype.addGeojsonLayer === undefined) {
 	ol.Map.prototype.addGeojsonLayer = function addGeojsonLayer(o){
 	var lyr = this.getLayer(o.id); //buscando si ya existe el layer
@@ -609,6 +622,17 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
 		});
 
 		function applyStylesFunction(feature, resolution) {
+			//fix: cut icon/labels in border of layer extent.
+			let factor = 50
+			let dx = resolution * factor;
+			let dy = resolution * factor;
+			let newextent = [
+				extent[0] - dx,
+				extent[1] - dy,
+				extent[2] + dx,
+				extent[3] + (dy + factor + (resolution/10*2*factor) ) //Se aumenta unos pixeles para que no se corte la parte del icono que queda fuera del recuadro.
+			]
+			vectorLayer.setExtent(newextent);
 			return geosicobStylesFunction(feature, resolution, vectorLayer.geosicobStyle())
 		}
 		o.id = o.id || 'newgeojson';
@@ -657,6 +681,7 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
 			 'url': url,
 			 'dataType': "json",
 			 'success': function (data) {
+				if(!data.features) return null; //si no existen elementos
 				o.geojson = data;
 				return createLayer();
 			 }
@@ -665,6 +690,38 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
 		return createLayer();
 	} 
 }
+}
+//**********************************************//
+//** Agrega una capa vectorial de tipo PUNTO. El parametro de entrada es un json con los sgtes atributos:
+if (ol.Map.prototype.addPointLayer === undefined) {
+	ol.Map.prototype.addPointLayer = function addPointLayer(o){
+	//op.lon = longitud
+	//op.lat = latitud
+	//op.properties = atributos de informacion del punto
+	//Cualquier otro parametro para la funcion addGeojsonLayer por ejemplo:
+	//	geosicobStyle = estilo para dibujar el punto (GeoVision Style)
+		var olMap = this;
+		var ran = Math.floor((Math.random() * 1000) + 1);
+		var GeoJSON = {
+			type:"FeatureCollection",
+			crs:{type:"name",properties:{name:"EPSG:4326"}},
+			features:[{
+				type:"Feature",
+				geometry:{
+					type:"Point",
+					coordinates:[parseFloat(o.lon),parseFloat(o.lat)]
+				},
+				properties: o.properties || {nombrepunto:"Nuevo punto"}
+			}]
+		}
+
+		o.id = o.id || ('punto' + ran);
+		o.geojson = GeoJSON;
+		o.title = o.title || ('Capa: ' + o.id );
+		o.geosicobStyle = o.geosicobStyle || {};
+		o.process = o.process || "";
+		olMap.addGeojsonLayer(o);
+	} 
 }
 //**********************************************//
 // Carga una capa geoJSON desde el servidor del geoSICOB.
@@ -894,7 +951,13 @@ function addSHP(data){
 	function onSelectBaseMap(id,el){
 		if($(el).closest('.basemap-thumbnail').hasClass('active') || $(el).hasClass('btn-thumbnail')){
 			var lyr_info = loadjsonLayer(window.jsonLayers, id);
+			
+			$('#legend').removeClass('show').addClass('hide');
 
+			if(!!lyr_info.lyr_source.legendURL){
+				$('#legend').toggleClass('show hide').find('img').attr('src',lyr_info.lyr_source.legendURL);
+			}
+			
 			if(lyr_info && typeof lyr_info.onSelectFn === 'function'){
 				lyr_info.onSelectFn(el);
 			} else {
@@ -938,9 +1001,9 @@ function addSHP(data){
 				}
 				*/
 			}            
-    });
-    $(el).closest('.basemap').find('.basemap-thumbnail').removeClass('alert-info active'); 
-    $(el).closest('.basemap-thumbnail').addClass('alert-info active');			
+    	});
+    	$(el).closest('.basemap').find('.basemap-thumbnail').removeClass('alert-info active'); 
+    	$(el).closest('.basemap-thumbnail').addClass('alert-info active');			
 	}
 	
 	function loadjsonLayer(_json, id){
@@ -950,7 +1013,7 @@ function addSHP(data){
 		//if(!(lyr == null)) return lyr;
 
 		for(var i=0; i < _json.length; ++i) {
-    	var lyr_info = _json[i];
+    		var lyr_info = _json[i];
 	
 			if (lyr_info.id == id) {
 								
@@ -1038,7 +1101,15 @@ function addSHP(data){
         			opTile = lyr_info.lyr_options;
         			lyr_info.lyr_source.serverType = 'mapserver';
         			opTile.source = new ol.source.TileWMS(lyr_info.lyr_source);
-        			break;
+					break;
+				case 'WMS':
+        			
+					if(!!lyr_info.tiled){
+						opTile = lyr_info.lyr_options;
+						opTile.source = new ol.source.TileWMS(lyr_info.lyr_source);
+					}
+        			
+        			break;					
         	}
 
         	if(!(opTile == null)){
@@ -1059,6 +1130,10 @@ function addSHP(data){
 		return null;
 	} 
 </script>
+<!-- Componente para mostrar la leyenda del mapa -->
+<div id="legend" class="navbar navbar-toggle  ol-control hide" style="right:0;">
+	<img src="">
+</div>
 <!--
 ++++++++++++ BingMaps ++++++++++++ 
 -->
@@ -2438,12 +2513,12 @@ $(function(){
 
 });</script>
 	<!-- JavaScript Includes -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-Knob/1.2.13/jquery.knob.min.js"></script>
+		<script src="jQuery-Knob/jquery.knob.min.js"></script>
 
 		<!-- jQuery File Upload Dependencies -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.17.0/js/vendor/jquery.ui.widget.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.17.0/js/jquery.iframe-transport.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.17.0/js/jquery.fileupload.min.js"></script>
+		<script src="blueimp/jquery.ui.widget.min.js"></script>
+		<script src="blueimp/jquery.iframe-transport.min.js"></script>
+		<script src="blueimp/jquery.fileupload.min.js"></script>
 <!-- login / logout -->
 	<script type="text/javascript">function do_login()
 {
@@ -2508,38 +2583,12 @@ function do_logout()
 		jQuery(document).ready(function(){
 			if (window.frameElement ){
 				var ifrm = window.frameElement;
-				$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) ;
-				$(top).bind('resize', function () {
-					$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) ;
+				$(ifrm).css('height', window.parent.document.documentElement.clientHeight + 'px' ) ;
+				$( window.parent).bind('resize', function () {
+					$(ifrm).css('height', window.parent.document.documentElement.clientHeight + 'px' ) ;
 				})
 			}	
 		})
-	</script>
-	<!-- DEMO geoJSON -->
-	<script type="text/javascript">
-		(function () {
-			map.addGeojsonLayer({
-				id: 'testjson', 
-				url : 'https://gist.githubusercontent.com/anonymous/c0bcded232580784bb6cc79fd6c4d22b/raw/dab5dc7397a0e8a0025f7e0b4534adaafd001242/map.geojson', 
-				title : 'Test JS',
-			});
-	/*
-		$.ajax({
-				'global': false,
-				'url': 'https://gist.githubusercontent.com/anonymous/c0bcded232580784bb6cc79fd6c4d22b/raw/dab5dc7397a0e8a0025f7e0b4534adaafd001242/map.geojson',
-				'dataType': "json",
-				'success': function (data) {
-					map.addGeojsonLayer({id: 'testjson', geojson : data, title : 'Test JSON'});
-									document.getElementById('tool-geoprocess-result').innerHTML = tmpl('tmpl-attribute-table', {id: 'testjson'});
-									$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
-										function(){
-											$('a[href="#tool-geoprocess-result"]').show().trigger('click');
-										}
-									);
-				}
-		});
-	*/
-	})();
 	</script>
 </body>
 </html>

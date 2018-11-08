@@ -9,13 +9,24 @@
 	<link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="ol/ol.css">
 	<link rel="stylesheet" href="sidebar-v2/ol3-sidebar.min.css" />
-<!--
+	<link rel="stylesheet" href="ol-ext/dist/ol-ext.min.css" />
+
+	<!--
 Usar librerias de github:
 1.- Find your link on GitHub, and click to the "Raw" version of the file.
 2.- Copy the URL, and link to it.
 3.- Change raw.githubusercontent.com to rawgit.com (non-production) or cdn.rawgit.com (production)
 -->
-<link rel="stylesheet" href="ol-ext/dist/ol-ext.min.css" />
+
+<!-- 
+********************************
+  *** CONFIGURACION GLOBAL ***
+********************************
+-->
+<script>
+	//window.cloudURL = 'https://erikfva.github.io/geosicobView/';
+</script>
+<!--*****************************-->
 
 <style>
       html, body {
@@ -73,9 +84,9 @@ Usar librerias de github:
 
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="jquery/jquery-3.3.1.min.js"></script>
 <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="https://cdn.rawgit.com/blueimp/JavaScript-Templates/master/js/tmpl.min.js"></script>
+<script src="blueimp/tmpl.min.js"></script>
 <script src="ol/ol.js"></script>
 <!-- Control LayerSwitcher -->
 <script type="text/javascript" src="ol-ext/dist/ol-ext.min.js"></script>
@@ -98,7 +109,7 @@ Usar librerias de github:
                 	</a>
                 </li>
                 <li><a href="#search" role="tab"><i class="fa fa-search"></i></a></li>
-                <li>
+                <li class="hidden">
                 	<a href="#geoprocesses" role="tab">
                 		<span class="fa-stack">
                 			<i class="fa fa-square-o fa-stack-2x"></i>
@@ -106,9 +117,9 @@ Usar librerias de github:
                 		</span>
                 	</a>
                 </li>
-                <li class="disabled"><a href="#messages" role="tab"><i class="fa fa-envelope"></i></a></li>
-                <li><a href="javascript:$('.sidebar-close:visible').trigger('click'); uploadSHP( function(r){ addSHP(r); } );"><i class="fa fa-upload" aria-hidden="true"></i></a></li>
-                <li>
+                <li class="hidden disabled"><a href="#messages" role="tab"><i class="fa fa-envelope"></i></a></li>
+                <li class="hidden" ><a href="javascript:$('.sidebar-close:visible').trigger('click'); uploadSHP( function(r){ addSHP(r); } );"><i class="fa fa-upload" aria-hidden="true"></i></a></li>
+                <li class="hidden" >
                 	<a href="javascript:showFrmProcess(geoprocess.process[0]);">
                 		<span class="fa-stack">
                 			<sub class="fa fa-cogs fa-stack-1x"></sub>
@@ -119,7 +130,7 @@ Usar librerias de github:
             </ul>
 
             <ul role="tablist">
-                <li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
+                <li class="hidden"><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
             </ul>
         </div>
 
@@ -475,12 +486,12 @@ function addSHP(data){
 <!-- Formulario para cargar shapefile -->
 	<!-- inject:uploadfrm:all --><!-- endinject -->
 	<!-- JavaScript Includes -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-Knob/1.2.13/jquery.knob.min.js"></script>
+		<script src="jQuery-Knob/jquery.knob.min.js"></script>
 
 		<!-- jQuery File Upload Dependencies -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.17.0/js/vendor/jquery.ui.widget.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.17.0/js/jquery.iframe-transport.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.17.0/js/jquery.fileupload.min.js"></script>
+		<script src="blueimp/jquery.ui.widget.min.js"></script>
+		<script src="blueimp/jquery.iframe-transport.min.js"></script>
+		<script src="blueimp/jquery.fileupload.min.js"></script>
 <!-- login / logout -->
 	<!-- inject:login:js -->
 	<!-- endinject -->
@@ -488,38 +499,12 @@ function addSHP(data){
 		jQuery(document).ready(function(){
 			if (window.frameElement ){
 				var ifrm = window.frameElement;
-				$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) ;
-				$(top).bind('resize', function () {
-					$(ifrm).css('height', top.document.documentElement.clientHeight + 'px' ) ;
+				$(ifrm).css('height', window.parent.document.documentElement.clientHeight + 'px' ) ;
+				$( window.parent).bind('resize', function () {
+					$(ifrm).css('height', window.parent.document.documentElement.clientHeight + 'px' ) ;
 				})
 			}	
 		})
-	</script>
-	<!-- DEMO geoJSON -->
-	<script type="text/javascript">
-		(function () {
-			map.addGeojsonLayer({
-				id: 'testjson', 
-				url : 'https://gist.githubusercontent.com/anonymous/c0bcded232580784bb6cc79fd6c4d22b/raw/dab5dc7397a0e8a0025f7e0b4534adaafd001242/map.geojson', 
-				title : 'Test JS',
-			});
-	/*
-		$.ajax({
-				'global': false,
-				'url': 'https://gist.githubusercontent.com/anonymous/c0bcded232580784bb6cc79fd6c4d22b/raw/dab5dc7397a0e8a0025f7e0b4534adaafd001242/map.geojson',
-				'dataType': "json",
-				'success': function (data) {
-					map.addGeojsonLayer({id: 'testjson', geojson : data, title : 'Test JSON'});
-									document.getElementById('tool-geoprocess-result').innerHTML = tmpl('tmpl-attribute-table', {id: 'testjson'});
-									$('a[href="#geoprocesses"]').trigger('click').delay(800).promise().done(
-										function(){
-											$('a[href="#tool-geoprocess-result"]').show().trigger('click');
-										}
-									);
-				}
-		});
-	*/
-	})();
 	</script>
 </body>
 </html>

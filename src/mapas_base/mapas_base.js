@@ -21,8 +21,10 @@ function renderMapasBase(idcontainer){
   document.body.removeChild(span);
 })();
 
-		var cloudURL = 'https://erikfva.github.io/geosicobView/';
-    $.when(
+	if (typeof window.cloudURL == 'undefined')
+		window.cloudURL = 'https://erikfva.github.io/geosicobView/';
+		
+		$.when(
      	$.get(cloudURL + 'build/mapas_base.min.css', function(data){
     		$('<style/>').text(data).appendTo('head');
     	}),

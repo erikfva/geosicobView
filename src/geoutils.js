@@ -52,9 +52,9 @@ var geosicobStyles = {
       weight:'bold',
       rotation:parseFloat(0),
       font: 'Arial',
-      color:'blue',
+      color:'#000000',
       outlineColor:'#ffffff',
-			outlineWidth:parseInt(3, 10),
+			outlineWidth:parseInt(2, 10),
 			overflow: false,
     }
   },
@@ -198,8 +198,9 @@ function geosicobStylesFunction(feature, resolution, geosicobStyle) {
 //	id (alfanumerico): Identificador unico para la nueva capa.
 //	title (opcional) : Titulo para la nueva capa.
 //	type (opcional) : Valor para clasificar la capa, util para procesos posteriores.
-//										Ej.: Para las capas cargadas del geoSICOB se asiga automaticamente el valor de 'geosicob'.
+//	Ej.: Para las capas cargadas del geoSICOB se asiga automaticamente el valor de 'geosicob'.
 //	geojson (texto/JSON): Contenido en formato geoJSON de la capa, el formato puede ser en texto plano o en JSON.
+//  url (opcional) : Carga el geoJSON mediante llamada AJAX a la URL dada.
 if (ol.Map.prototype.addGeojsonLayer === undefined) {
 	ol.Map.prototype.addGeojsonLayer = function addGeojsonLayer(o){
 	var lyr = this.getLayer(o.id); //buscando si ya existe el layer
@@ -223,6 +224,17 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
 		});
 
 		function applyStylesFunction(feature, resolution) {
+			//fix: cut icon/labels in border of layer extent.
+			let factor = 50
+			let dx = resolution * factor;
+			let dy = resolution * factor;
+			let newextent = [
+				extent[0] - dx,
+				extent[1] - dy,
+				extent[2] + dx,
+				extent[3] + (dy + factor + (resolution/10*2*factor) ) //Se aumenta unos pixeles para que no se corte la parte del icono que queda fuera del recuadro.
+			]
+			vectorLayer.setExtent(newextent);
 			return geosicobStylesFunction(feature, resolution, vectorLayer.geosicobStyle())
 		}
 		o.id = o.id || 'newgeojson';
@@ -271,6 +283,7 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
 			 'url': url,
 			 'dataType': "json",
 			 'success': function (data) {
+				if(!data.features) return null; //si no existen elementos
 				o.geojson = data;
 				return createLayer();
 			 }
@@ -279,6 +292,38 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
 		return createLayer();
 	} 
 }
+}
+//**********************************************//
+//** Agrega una capa vectorial de tipo PUNTO. El parametro de entrada es un json con los sgtes atributos:
+if (ol.Map.prototype.addPointLayer === undefined) {
+	ol.Map.prototype.addPointLayer = function addPointLayer(o){
+	//op.lon = longitud
+	//op.lat = latitud
+	//op.properties = atributos de informacion del punto
+	//Cualquier otro parametro para la funcion addGeojsonLayer por ejemplo:
+	//	geosicobStyle = estilo para dibujar el punto (GeoVision Style)
+		var olMap = this;
+		var ran = Math.floor((Math.random() * 1000) + 1);
+		var GeoJSON = {
+			type:"FeatureCollection",
+			crs:{type:"name",properties:{name:"EPSG:4326"}},
+			features:[{
+				type:"Feature",
+				geometry:{
+					type:"Point",
+					coordinates:[parseFloat(o.lon),parseFloat(o.lat)]
+				},
+				properties: o.properties || {nombrepunto:"Nuevo punto"}
+			}]
+		}
+
+		o.id = o.id || ('punto' + ran);
+		o.geojson = GeoJSON;
+		o.title = o.title || ('Capa: ' + o.id );
+		o.geosicobStyle = o.geosicobStyle || {};
+		o.process = o.process || "";
+		olMap.addGeojsonLayer(o);
+	} 
 }
 //**********************************************//
 // Carga una capa geoJSON desde el servidor del geoSICOB.
