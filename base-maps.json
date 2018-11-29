@@ -10,13 +10,13 @@
 			},
 			"lyr_source" : {
 				"type"	:	"Sentinel2",
-				"url" : "https://services.sentinel-hub.com/v1/wms/b7b5e3ef-5a40-4e2a-9fd3-75ca2b81cb32",
+				"url" : "https://services.sentinel-hub.com/ogc/wms/b7b5e3ef-5a40-4e2a-9fd3-75ca2b81cb32",
 				"params"	:	{
 					"TRANSPARENT" : false,
+					"version": "1.1.1",
 					"FORMAT" : "image/jpeg",
 					"priority":"mostRecent",
 					"gain":1,
-					"gamma":1,
 					"showLogo" : "false"
 				},
 				"maxZoom"	: "19"

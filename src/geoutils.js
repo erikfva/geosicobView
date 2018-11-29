@@ -16,60 +16,67 @@ if (ol.Map.prototype.getLayer === undefined) {
 //** FUNCIONES PARA APLICAR ESTILOS
 //**********************************************//				
 var geosicobStyles = {
-  "default" : {
-		icon : {
+	"default": {
+		filter: [], //https://docs.geoserver.org/stable/en/user/styling/mbstyle/reference/spec.html#types-filter
+		//Vector with three elements:
+		//[0] = logical operation, ej: '==', '!=', '>', '>=', '<', <='.
+		//[1] = field name for operation.
+		//[2] = value for operation.
+		//Ej.: filter: ['>=', 'poblation', '2000'] 
+		icon: {
 			file: "",
-			maxresol : 1200,
+			maxresol: 1200,
 			position: "center", //left,right,top,bottom,top-left,top-right,bottom-left,bottom-right
-/** opacity, scale **/			
+			/** opacity, scale **/
 		},
-  	border : { //stroke
-  		color : 'blue',
-  		lineCap : 'round', // extremos de la linea (butt, round, or square. Default is round).
-  		lineJoin : 'round', //	junte de las lineas (bevel, round, or miter. Default is round).
-  		lineDash: [], // estilo de linea punteada (An Array of numbers which specify distances
-  									 //	to alternately draw a line and a gap (in coordinate space units).
-  									 // If the number of elements in the array is odd, the elements of the array
-  									 // get copied and concatenated.
-  									 //For example, [5, 15, 25] will become [5, 15, 25, 5, 15, 25].
-  									 //If the array is empty, the line dash list is cleared and line strokes return to being solid.)
-  		lineDashOffset : 0.0, //Desplazamiento en relacion al maraco para empezar a dibujar la linea.
-  		miterLimit : 10,
-  		width: 2
-  	},
-  	fill : {
-  		color : 'rgba(0, 0, 255, 0.1)'
-  	},
-  	text : {
-  		field : '',
-  		type : 'normal', //hide, shorten, wrap
-  		maxresol : 1200,
-      align:'center',
-      baseline:'middle', //Text base line. Possible values: 'bottom', 'top', 'middle', 'alphabetic', 'hanging', 'ideographic'.
-      size:20,
-      offsetX:parseInt(0, 10),
-      offsetY:parseInt(0, 10),
-      weight:'bold',
-      rotation:parseFloat(0),
-      font: 'Arial',
-      color:'#000000',
-      outlineColor:'#ffffff',
-			outlineWidth:parseInt(2, 10),
+		border: { //stroke
+			color: 'blue',
+			lineCap: 'round', // extremos de la linea (butt, round, or square. Default is round).
+			lineJoin: 'round', //	junte de las lineas (bevel, round, or miter. Default is round).
+			lineDash: [], // estilo de linea punteada (An Array of numbers which specify distances
+			//	to alternately draw a line and a gap (in coordinate space units).
+			// If the number of elements in the array is odd, the elements of the array
+			// get copied and concatenated.
+			//For example, [5, 15, 25] will become [5, 15, 25, 5, 15, 25].
+			//If the array is empty, the line dash list is cleared and line strokes return to being solid.)
+			lineDashOffset: 0.0, //Desplazamiento en relacion al maraco para empezar a dibujar la linea.
+			miterLimit: 10,
+			opacity: 1,
+			width: 2
+		},
+		fill: {
+			color: 'rgba(0, 0, 255, 0.1)'
+		},
+		text: {
+			field: '',
+			type: 'normal', //hide, shorten, wrap
+			maxresol: 1200,
+			align: 'center',
+			baseline: 'middle', //Text base line. Possible values: 'bottom', 'top', 'middle', 'alphabetic', 'hanging', 'ideographic'.
+			size: 20,
+			offsetX: parseInt(0, 10),
+			offsetY: parseInt(0, 10),
+			weight: 'bold',
+			rotation: parseFloat(0),
+			font: 'Arial',
+			color: '#000000',
+			outlineColor: '#ffffff',
+			outlineWidth: 3, //parseInt(2, 10),
 			overflow: false,
-    }
-  },
-  "titulado" : {
-  	text : {
-  		field : 'titulo',
-  		color : 'green'
-  	},
-  	fill : {
-  		color : 'green'
-  	},
-  	border : {
-  		color : 'green'
-  	}
-  }
+		}
+	},
+	"titulado": {
+		text: {
+			field: 'titulo',
+			color: 'green'
+		},
+		fill: {
+			color: 'green'
+		},
+		border: {
+			color: 'green'
+		}
+	}
 };
 //** Retorna o asigna el estilo de un layer
 if (ol.layer.Base.prototype.geosicobStyle === undefined){
@@ -94,11 +101,12 @@ function stringDivider(str, width, spaceReplacer) {
 	}
 	return str;
 }
-var getText = function(feature, resolution, geosicobStyle) {
+var getText = function(feature, resolution, gvStyle) {
   //console.log(feature);
-  var type = geosicobStyle.text.type;
-  var maxResolution = geosicobStyle.text.maxresol;
-  var text = '' + feature.get(geosicobStyle.text.field);
+  var type = gvStyle.text.type;
+  var maxResolution = gvStyle.text.maxresol;
+  var text = '' + feature.get(gvStyle.text.field);
+  //console.log(maxResolution,resolution);
 
   if (resolution > maxResolution) {
     text = '';
@@ -113,26 +121,65 @@ var getText = function(feature, resolution, geosicobStyle) {
   return text;
 };
 //** Prepara la etiqueta
-var createTextStyle = function(feature, resolution, geosicobStyle) {
-  var align = geosicobStyle.text.align;
-  var baseline = geosicobStyle.text.baseline;
-  var size = geosicobStyle.text.size;
-  var offsetX = parseInt(geosicobStyle.text.offsetX, 10);
-  var offsetY = parseInt(geosicobStyle.text.offsetY, 10);
-  var weight = geosicobStyle.text.weight;
-  var rotation = parseFloat(geosicobStyle.text.rotation);
-  var font = weight + ' ' + size + 'px ' + geosicobStyle.text.font;
-  var fillColor = geosicobStyle.text.color;
-  var outlineColor = geosicobStyle.text.outlineColor;
-  var outlineWidth = parseInt( geosicobStyle.text.outlineWidth, 10);
-	var	overflow = geosicobStyle.text.overflow;
+var createTextStyle = function(feature, resolution, gvStyle) {
+	var align = gvStyle.text.align;
+	var baseline = gvStyle.text.baseline;
+	var size = gvStyle.text.size;
+	var offsetX = parseInt(gvStyle.text.offsetX, 10);
+	var offsetY = parseInt(gvStyle.text.offsetY, 10);
+	var weight = gvStyle.text.weight;
+	var placement = gvStyle.text.placement ? gvStyle.text.placement.value : undefined;
+	var maxAngle = gvStyle.text.maxangle ? parseFloat(gvStyle.text.maxangle) : undefined;
+	var overflow = gvStyle.text.overflow ? (gvStyle.text.overflow == 'true') : undefined;
+	var rotation = parseFloat(gvStyle.text.rotation);
+	if (gvStyle.text.font == '\'Open Sans\'' && !openSansAdded) {
+	  var openSans = document.createElement('link');
+	  openSans.href = 'https://fonts.googleapis.com/css?family=Open+Sans';
+	  openSans.rel = 'stylesheet';
+	  document.getElementsByTagName('head')[0].appendChild(openSans);
+	  openSansAdded = true;
+	}
+	var font = weight + ' ' + size + ' ' + gvStyle.text.font;
+	var fillColor = gvStyle.text.color;
+	var outlineColor = gvStyle.text.outlineColor;
+	var outlineWidth = parseInt( gvStyle.text.outlineWidth, 10);
+
+	return new ol.style.Text({
+	  textAlign: align == '' ? undefined : align,
+	  textBaseline: baseline,
+	  font: font,
+	  text: getText(feature, resolution, gvStyle),
+	  fill: new ol.style.Fill({color: fillColor}),
+	  stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth}),
+	  offsetX: offsetX,
+	  offsetY: offsetY,
+	  placement: placement,
+	  maxAngle: maxAngle,
+	  overflow: overflow,
+	  rotation: rotation
+	});
+};
+/* var createTextStyle = function(feature, resolution, gvStyle) {
+  
+	var align = gvStyle.text.align;
+  var baseline = gvStyle.text.baseline;
+  var size = gvStyle.text.size;
+  var offsetX = parseInt(gvStyle.text.offsetX, 10);
+  var offsetY = parseInt(gvStyle.text.offsetY, 10);
+  var weight = gvStyle.text.weight;
+  var rotation = parseFloat(gvStyle.text.rotation);
+  var font = weight + ' ' + size + 'px ' + gvStyle.text.font;
+  var fillColor = gvStyle.text.color;
+  var outlineColor = gvStyle.text.outlineColor;
+  var outlineWidth = parseInt( gvStyle.text.outlineWidth, 10);
+	var	overflow = gvStyle.text.overflow;
 
 
   return new ol.style.Text({
     textAlign: align,
     textBaseline: baseline,
     font: font,
-    text: getText(feature, resolution, geosicobStyle),
+    text: getText(feature, resolution, gvStyle),
     fill: new ol.style.Fill({color: fillColor}),
     stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth}),
     offsetX: offsetX,
@@ -140,18 +187,23 @@ var createTextStyle = function(feature, resolution, geosicobStyle) {
 		rotation: rotation,
 		overflow: overflow,
   });
-};
+}; */
 //** Prepara el borde
-var createBorderStyle = function(feature, resolution, geosicobStyle) {
-	var data = geosicobStyle.border;
-	data.lineDashOffset= parseFloat(geosicobStyle.border.lineDashOffset);
-	data.miterLimit= parseInt(geosicobStyle.border.miterLimit, 10);
-	data.width= parseInt(geosicobStyle.border.width);
+var createBorderStyle = function(feature, resolution, gvStyle) {
+	var data = gvStyle.border;
+	data.lineDashOffset= parseFloat(gvStyle.border.lineDashOffset);
+	data.miterLimit= parseInt(gvStyle.border.miterLimit, 10);
+	data.width= parseInt(gvStyle.border.width);
+	if(data.width == 0) data.opacity = 0;
+	var color = ol.color.asArray(ol.color.asString(data.color));
+	color = color.slice();
+	color[3] = isNaN(data.opacity)?1:data.opacity;  // change the alpha of the color
+	data.color = ol.color.asString(color);
   return new ol.style.Stroke(data);
 };
 //** Prepara el fondo
-var createFillStyle = function(feature, resolution, geosicobStyle) {
-	var data = geosicobStyle.fill;
+var createFillStyle = function(feature, resolution, gvStyle) {
+	var data = gvStyle.fill;
 	var color = ol.color.asArray(ol.color.asString(data.color));
 	color = color.slice();
 	color[3] = data.opacity || 0.1;  // change the alpha of the color
@@ -159,10 +211,10 @@ var createFillStyle = function(feature, resolution, geosicobStyle) {
   return new ol.style.Fill(data);
 };
 //** Prepara el icono
-var createIconStyle = function(feature, resolution, geosicobStyle) {
-	var data = geosicobStyle.icon;
-	if(geosicobStyle.icon.file != '')
-		data.src = geosicobStyle.icon.file;
+var createIconStyle = function(feature, resolution, gvStyle) {
+	var data = gvStyle.icon;
+	if(gvStyle.icon.file != '')
+		data.src = gvStyle.icon.file;
 	data.opacity = data.opacity || 1;
 	if (resolution > data.maxresol) 
 		data.opacity = 0;
@@ -180,17 +232,61 @@ var createIconStyle = function(feature, resolution, geosicobStyle) {
 	return new ol.style.Icon(data);
 }
 
+function gvMixedStyle(feature, gvStyles){
+	//console.log(feature.getProperties());
+	var gvStyle = JSON.parse(JSON.stringify(geosicobStyles.default));
+	var properties = feature.getProperties();
+	for(let i=0; i<gvStyles.length; i++){
+		// do something
+		var gvNStyle =  gvStyles[i];
+		var apply = true;
+		if(gvNStyle.filter && Array.isArray(gvNStyle.filter) && gvNStyle.filter.length >= 3){
+			//console.log(gvNStyle.filter);
+			var operator = gvNStyle.filter[0];
+			var key = gvNStyle.filter[1];
+			var value1 = properties[key];
+			var value2 = gvNStyle.filter[2];
+			var isNumeric = !isNaN(value2);
+			switch (operator) {
+				case '==':
+					apply = isNumeric? Number(value1) == Number(value2): value1 == value2;
+					break;
+				case '!=':
+					apply = isNumeric? Number(value1) != Number(value2): value1 != value2;
+					break;
+				case '>':
+					apply = isNumeric? Number(value1) > Number(value2): value1 > value2;
+					break;
+				case '>=':
+					apply = isNumeric? Number(value1) >= Number(value2): value1 >= value2;
+					break;
+				case '<':
+					apply = isNumeric? Number(value1) < Number(value2): value1 < value2;
+					break;
+				case '<=':
+					apply = isNumeric? Number(value1) <= Number(value2): value1 <= value2;
+					break;
+			}
+		}
+		if(apply)
+			jQuery.extend(true,gvStyle, gvNStyle);
+	}
+	//console.log(gvStyle);
+	return gvStyle;
+}
+
 //** Prepara el estilo = borde + fondo + etiqueta
 function geosicobStylesFunction(feature, resolution, geosicobStyle) {
+	var gvStyle = gvMixedStyle(feature, geosicobStyle);
 	var data = {
-		stroke : createBorderStyle(feature, resolution, geosicobStyle),
-		fill : createFillStyle(feature, resolution, geosicobStyle),
+		stroke : createBorderStyle(feature, resolution, gvStyle),
+		fill : createFillStyle(feature, resolution, gvStyle),
 	}
-	if(geosicobStyle.text.field != '') 
-		data.text =  createTextStyle(feature, resolution, geosicobStyle);
+	if(gvStyle.text.field != '') 
+		data.text =  createTextStyle(feature, resolution, gvStyle);
 
-	if(geosicobStyle.icon.file != '') 
-		data.image = createIconStyle(feature, resolution, geosicobStyle);
+	if(gvStyle.icon.file != '') 
+		data.image = createIconStyle(feature, resolution, gvStyle);
 		return new ol.style.Style(data)
 }
 //**********************************************//
@@ -215,6 +311,7 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
 		o.geojson = o.geojson.replace(/\\"/g,'\\"');
 		}
 		//console.log(o.geojson)
+		//if(!o.geojson.features) return; //si no existen elementos.
 
 		var vectorSource = new ol.source.Vector({
 			features: (new ol.format.GeoJSON({
@@ -240,9 +337,9 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
 		o.id = o.id || 'newgeojson';
 		var opVectorLayer = jQuery.extend (
 			true,
-			JSON.parse(JSON.stringify(o)),
+			o, //JSON.parse(JSON.stringify(o)),
 			{
-				geosicobStyle: jQuery.extend(true,JSON.parse(JSON.stringify(geosicobStyles.default)) ,o.geosicobStyle || {}),
+				geosicobStyle: o.geosicobStyle || [{}], //JSON.stringify(o.geosicobStyle || [{}]),
 				id		:	o.id,
 				title : o.title || ("Capa: " + o.id),
 				type	: o.type || "undefined"
@@ -253,6 +350,11 @@ if (ol.Map.prototype.addGeojsonLayer === undefined) {
 				declutter: true
 			}
 		);
+
+		if(!Array.isArray(opVectorLayer.geosicobStyle)){
+			opVectorLayer.geosicobStyle = [opVectorLayer.geosicobStyle];
+		}
+
 		var vectorLayer = new ol.layer.Vector(opVectorLayer);
 		olMap.addLayer(vectorLayer);
 		var extent = vectorSource.getExtent();

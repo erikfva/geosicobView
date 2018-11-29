@@ -2,6 +2,9 @@ function renderMapasBase(idcontainer){
 
  if (typeof window.jsonLayers !== 'undefined') return;
 
+ if (typeof window.cloudURL == 'undefined')
+ window.cloudURL = $("#base_url").val()+"application/assets/js/"; //'https://erikfva.github.io/geosicobView/';
+
 (function () {
   var span = document.createElement('span');
   
@@ -15,20 +18,17 @@ function renderMapasBase(idcontainer){
   
   if (css(span, 'font-family') !== 'FontAwesome') {
     var headHTML = document.head.innerHTML;
-    headHTML += '<link href="https://opensource.keycdn.com/fontawesome/4.7.0/font-awesome.min.css" rel="stylesheet">';
+    headHTML += '<link href="' + cloudURL + 'font-awesome.min.css" rel="stylesheet">';
     document.head.innerHTML = headHTML;
   }
   document.body.removeChild(span);
 })();
-
-	if (typeof window.cloudURL == 'undefined')
-		window.cloudURL = 'https://erikfva.github.io/geosicobView/';
-		
+	
 		$.when(
-     	$.get(cloudURL + 'build/mapas_base.min.css', function(data){
+     	$.get(cloudURL + 'mapas_base.min.css', function(data){
     		$('<style/>').text(data).appendTo('head');
     	}),
-    	$.get(cloudURL + 'build/mapas_base.min.html', function(data){
+    	$.get(cloudURL + 'mapas_base.min.html', function(data){
     		$(data).filter('script').each(function(i,ss){
     			var s = document.createElement('script');
     			s.type = $(ss).attr('type') || 'text/javascript';
@@ -40,7 +40,7 @@ function renderMapasBase(idcontainer){
     	$.getJSON(cloudURL + 'base-maps.json', function( data ) {
     		window.jsonLayers = data.layers;
     	}),
-    	typeof window['tmpl'] === 'function'?$.noop():$.get('https://cdn.rawgit.com/blueimp/JavaScript-Templates/master/js/tmpl.min.js',function(ss){
+    	typeof window.tmpl === 'function'?$.noop():$.get(cloudURL + 'tmpl.min.js',function(ss){
    			var s = document.createElement('script');
     		s.type = 'text/javascript';
     		s.text = ss;
