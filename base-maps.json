@@ -10,7 +10,7 @@
 			},
 			"lyr_source" : {
 				"type"	:	"Sentinel2",
-				"url" : "https://services.sentinel-hub.com/ogc/wms/b7b5e3ef-5a40-4e2a-9fd3-75ca2b81cb32",
+				"url" : "https://services.sentinel-hub.com/ogc/wms/c4bea263-e64a-4a47-9ef6-b694fef4509d",
 				"params"	:	{
 					"TRANSPARENT" : false,
 					"version": "1.1.1",
